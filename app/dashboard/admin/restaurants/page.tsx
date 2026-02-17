@@ -19,6 +19,8 @@ interface Restaurant {
   description: string | null;
   phone: string;
   email: string | null;
+  momo_number: string;
+  momo_name: string;
   is_active: boolean;
   subscription_status: string;
   created_at: string;
@@ -30,7 +32,10 @@ export default function SuperAdminRestaurantsPage() {
   const router = useRouter();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(
+    null,
+  );
 
   // Redirect if not super admin
   useEffect(() => {
@@ -63,6 +68,22 @@ export default function SuperAdminRestaurantsPage() {
     }
   };
 
+  const handleEdit = (restaurant: Restaurant) => {
+    setEditingRestaurant(restaurant);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingRestaurant(null);
+  };
+
+  const handleSuccess = () => {
+    setShowModal(false);
+    setEditingRestaurant(null);
+    loadRestaurants();
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -82,7 +103,7 @@ export default function SuperAdminRestaurantsPage() {
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl font-bold">Restaurants</h1>
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => setShowModal(true)}
             className="btn btn-primary"
           >
             <Plus className="w-5 h-5" />
@@ -198,11 +219,7 @@ export default function SuperAdminRestaurantsPage() {
                 <td>
                   <div className="flex gap-2">
                     <button
-                      onClick={() =>
-                        router.push(
-                          `/dashboard/admin/restaurants/${restaurant.id}`,
-                        )
-                      }
+                      onClick={() => handleEdit(restaurant)}
                       className="btn-ghost p-2"
                       title="Edit"
                     >
@@ -226,7 +243,7 @@ export default function SuperAdminRestaurantsPage() {
             <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600">No restaurants yet</p>
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => setShowModal(true)}
               className="btn btn-primary mt-4"
             >
               <Plus className="w-5 h-5" />
@@ -236,35 +253,37 @@ export default function SuperAdminRestaurantsPage() {
         )}
       </div>
 
-      {/* Create Restaurant Modal */}
-      {showCreateModal && (
-        <CreateRestaurantModal
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
-            setShowCreateModal(false);
-            loadRestaurants();
-          }}
+      {/* Restaurant Modal (Create/Edit) */}
+      {showModal && (
+        <RestaurantModal
+          restaurant={editingRestaurant}
+          onClose={handleCloseModal}
+          onSuccess={handleSuccess}
         />
       )}
     </div>
   );
 }
 
-// Create Restaurant Modal Component
-function CreateRestaurantModal({
+// Restaurant Modal Component (Create & Edit)
+function RestaurantModal({
+  restaurant,
   onClose,
   onSuccess,
 }: {
+  restaurant: Restaurant | null;
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const isEditing = restaurant !== null;
+
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    phone: "",
-    email: "",
-    momoNumber: "",
-    momoName: "",
+    name: restaurant?.name || "",
+    description: restaurant?.description || "",
+    phone: restaurant?.phone || "",
+    email: restaurant?.email || "",
+    momoNumber: restaurant?.momo_number || "",
+    momoName: restaurant?.momo_name || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -275,37 +294,75 @@ function CreateRestaurantModal({
     setError("");
 
     try {
-      const { error: insertError } = await supabase.from("restaurants").insert({
+      const payload = {
         name: formData.name,
         description: formData.description || null,
         phone: formData.phone,
         email: formData.email || null,
         momo_number: formData.momoNumber,
         momo_name: formData.momoName,
-        is_active: true,
-        subscription_status: "TRIAL",
-        trial_ends_at: new Date(
-          Date.now() + 30 * 24 * 60 * 60 * 1000,
-        ).toISOString(), // 30 days trial
-      });
+      };
 
-      if (insertError) throw insertError;
+      if (isEditing) {
+        // Update existing restaurant
+        const { error: updateError } = await supabase
+          .from("restaurants")
+          .update(payload)
+          .eq("id", restaurant.id);
+
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from("restaurants")
+          .insert({
+            ...payload,
+            is_active: true,
+            subscription_status: "TRIAL",
+            trial_ends_at: new Date(
+              Date.now() + 30 * 24 * 60 * 60 * 1000,
+            ).toISOString(),
+          });
+
+        if (insertError) throw insertError;
+      }
 
       onSuccess();
     } catch (err: any) {
-      setError(err.message || "Failed to create restaurant");
+      setError(
+        err.message ||
+          `Failed to ${isEditing ? "update" : "create"} restaurant`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b-2 border-gray-200">
-          <h2 className="text-2xl font-bold">Add New Restaurant</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Glassmorphic Backdrop */}
+      <div
+        className="absolute inset-0 backdrop-blur-sm bg-black/30"
+        onClick={onClose}
+        style={{
+          animation: "fadeIn 0.2s ease-out",
+        }}
+      />
+
+      {/* Modal */}
+      <div
+        className="relative bg-white/95 backdrop-blur-xl rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200/50"
+        style={{
+          animation: "slideUp 0.3s ease-out",
+        }}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-white/80 backdrop-blur-xl p-6 border-b-2 border-gray-200/50 z-10">
+          <h2 className="text-2xl font-bold">
+            {isEditing ? "Edit Restaurant" : "Add New Restaurant"}
+          </h2>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
@@ -407,7 +464,8 @@ function CreateRestaurantModal({
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          {/* Actions */}
+          <div className="flex gap-3 pt-4 sticky bottom-0 bg-white/80 backdrop-blur-xl pb-2">
             <button
               type="button"
               onClick={onClose}
@@ -421,11 +479,38 @@ function CreateRestaurantModal({
               className="btn btn-primary flex-1"
               disabled={loading}
             >
-              {loading ? "Creating..." : "Create Restaurant"}
+              {loading
+                ? isEditing
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditing
+                  ? "Update Restaurant"
+                  : "Create Restaurant"}
             </button>
           </div>
         </form>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
