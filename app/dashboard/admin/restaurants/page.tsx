@@ -19,9 +19,9 @@ interface Restaurant {
   description: string | null;
   phone: string;
   email: string | null;
-  isActive: boolean;
-  subscriptionStatus: string;
-  createdAt: string;
+  is_active: boolean;
+  subscription_status: string;
+  created_at: string;
   _count?: { users: number; orders: number };
 }
 
@@ -52,7 +52,7 @@ export default function SuperAdminRestaurantsPage() {
       const { data, error } = await supabase
         .from("restaurants")
         .select("*")
-        .order("createdAt", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setRestaurants(data || []);
@@ -114,7 +114,7 @@ export default function SuperAdminRestaurantsPage() {
             <div>
               <p className="text-sm text-gray-600">Active</p>
               <p className="text-2xl font-bold">
-                {restaurants.filter((r) => r.isActive).length}
+                {restaurants.filter((r) => r.is_active).length}
               </p>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function SuperAdminRestaurantsPage() {
               <p className="text-2xl font-bold">
                 {
                   restaurants.filter((r) => {
-                    const created = new Date(r.createdAt);
+                    const created = new Date(r.created_at);
                     const now = new Date();
                     return (
                       created.getMonth() === now.getMonth() &&
@@ -181,19 +181,19 @@ export default function SuperAdminRestaurantsPage() {
                 <td>
                   <span
                     className={`badge ${
-                      restaurant.isActive ? "badge-success" : "badge-warning"
+                      restaurant.is_active ? "badge-success" : "badge-warning"
                     }`}
                   >
-                    {restaurant.isActive ? "Active" : "Inactive"}
+                    {restaurant.is_active ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td>
                   <span className="badge badge-info">
-                    {restaurant.subscriptionStatus}
+                    {restaurant.subscription_status}
                   </span>
                 </td>
                 <td className="text-sm text-gray-600">
-                  {new Date(restaurant.createdAt).toLocaleDateString()}
+                  {new Date(restaurant.created_at).toLocaleDateString()}
                 </td>
                 <td>
                   <div className="flex gap-2">
