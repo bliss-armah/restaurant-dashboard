@@ -12,7 +12,7 @@ import { UserModal } from "@/components/admin/UserModal";
 
 export default function SuperAdminUsersPage() {
   const { isReady, loading: authLoading } = useAdminGuard();
-  const { users, restaurants, loading } = useUsers(isReady);
+  const { users, restaurants, loading, createUser } = useUsers(isReady);
   const [showModal, setShowModal] = useState(false);
 
   if (authLoading || loading) return <LoadingSpinner />;
@@ -55,6 +55,10 @@ export default function SuperAdminUsersPage() {
         <UserModal
           restaurants={restaurants}
           onClose={() => setShowModal(false)}
+          onSubmit={async (data) => {
+            await createUser(data);
+            setShowModal(false);
+          }}
         />
       )}
     </div>

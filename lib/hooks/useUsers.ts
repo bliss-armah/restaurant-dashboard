@@ -44,5 +44,27 @@ export function useUsers(enabled: boolean) {
     }
   };
 
-  return { users, restaurants, loading, reload };
+  const createUser = async (data: {
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: "SUPER_ADMIN" | "RESTAURANT_ADMIN";
+    restaurantId: string;
+  }) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const response = await fetch(`${apiUrl}/admin/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Failed to create user");
+
+    await reload();
+    return result;
+  };
+
+  return { users, restaurants, loading, reload, createUser };
 }

@@ -4,38 +4,60 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Restaurant } from "@/lib/types";
 
+interface UserFormData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  role: "SUPER_ADMIN" | "RESTAURANT_ADMIN";
+  restaurantId: string;
+}
+
 interface UserModalProps {
   restaurants: Restaurant[];
   onClose: () => void;
+  onSubmit: (data: UserFormData) => Promise<void>;
 }
 
-export function UserModal({ restaurants, onClose }: UserModalProps) {
-  const [formData, setFormData] = useState({
+export function UserModal({ restaurants, onClose, onSubmit }: UserModalProps) {
+  const [formData, setFormData] = useState<UserFormData>({
     name: "",
     email: "",
     phone: "",
     password: "",
-    role: "RESTAURANT_ADMIN" as "SUPER_ADMIN" | "RESTAURANT_ADMIN",
+    role: "RESTAURANT_ADMIN",
     restaurantId: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const set =
-    (field: string) =>
+    (field: keyof UserFormData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(
-      "⚠️ User creation via API requires admin privileges.\n\nPlease create users in Supabase Dashboard:\n1. Go to Authentication > Users\n2. Add user with the above details\n3. Set user_metadata as shown",
-    );
-    console.log("User details to create:", formData);
-    onClose();
+    setLoading(true);
+    setError("");
+    try {
+      await onSubmit(formData);
+    } catch (err: any) {
+      setError(err.message || "Failed to create user");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Modal title="Add New User" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
         <div>
           <label className="block text-sm font-medium mb-2">Name *</label>
           <input
@@ -79,8 +101,10 @@ export function UserModal({ restaurants, onClose }: UserModalProps) {
             onChange={set("password")}
             className="input"
             placeholder="••••••••"
+            minLength={8}
             required
           />
+          <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
         </div>
 
         <div>
@@ -116,26 +140,21 @@ export function UserModal({ restaurants, onClose }: UserModalProps) {
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800 font-medium mb-1">
-            📋 Manual Creation Required
-          </p>
-          <p className="text-xs text-blue-600">
-            User creation via dashboard requires Supabase Admin API. Create
-            users in Supabase Dashboard with the details above.
-          </p>
-        </div>
-
         <div className="flex gap-3 pt-2">
           <button
             type="button"
             onClick={onClose}
             className="btn btn-secondary flex-1"
+            disabled={loading}
           >
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary flex-1">
-            Show Instructions
+          <button
+            type="submit"
+            className="btn btn-primary flex-1"
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create User"}
           </button>
         </div>
       </form>

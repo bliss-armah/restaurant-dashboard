@@ -19,7 +19,7 @@ export function StatCard({
     <div className="card">
       <div className="flex items-center gap-4">
         <div
-          className={`w-12 h-12 ${iconBgColor} rounded-lg flex items-center justify-center flex-shrink-0`}
+          className={`w-12 h-12 ${iconBgColor} rounded-lg flex items-center justify-center shrink-0`}
         >
           <Icon className="w-6 h-6 text-white" />
         </div>
