@@ -1,31 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useOrders } from "@/lib/hooks/useOrders";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { OrderDetailModal } from "@/components/dashboard/OrderDetailModal";
-
-interface Order {
-  id: string;
-  order_number: string;
-  total_amount: number;
-  status: string;
-  payment_status: string;
-  delivery_address: string | null;
-  customer_notes: string | null;
-  created_at: string;
-  customer: { name: string | null; phone: string };
-  items: Array<{
-    id: string;
-    item_name: string;
-    item_price: number;
-    quantity: number;
-    subtotal: number;
-  }>;
-}
+import type { Order, OrderFilterKey } from "@/lib/types";
 
 const STATUS_BADGE: Record<string, string> = {
   PENDING: "badge-warning",
@@ -35,7 +17,6 @@ const STATUS_BADGE: Record<string, string> = {
   COMPLETED: "badge-success",
   CANCELLED: "badge-danger",
 };
-
 const PAYMENT_BADGE: Record<string, string> = {
   UNPAID: "badge-danger",
   PENDING_VERIFICATION: "badge-warning",
@@ -43,81 +24,10 @@ const PAYMENT_BADGE: Record<string, string> = {
   FAILED: "badge-danger",
 };
 
-type FilterKey = "all" | "pending-payment" | "active";
-
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { orders, loading, updateOrderStatus } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [filter, setFilter] = useState<FilterKey>("all");
-
-  const loadOrders = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select(
-          `
-          id,
-          order_number,
-          total_amount,
-          status,
-          payment_status,
-          delivery_address,
-          customer_notes,
-          created_at,
-          customer:customer_id(name, phone),
-          items:order_items(id, item_name, item_price, quantity, subtotal)
-        `,
-        )
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      setOrders(data || []);
-    } catch (error: any) {
-      console.error("Failed to load orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadOrders();
-    const sub = supabase
-      .channel("orders")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "orders" },
-        loadOrders,
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "orders" },
-        loadOrders,
-      )
-      .subscribe();
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [loadOrders]);
-
-  const handleUpdateStatus = async (
-    orderId: string,
-    status?: string,
-    paymentStatus?: string,
-  ) => {
-    const updatePayload: Record<string, string> = {};
-    if (status) updatePayload.status = status;
-    if (paymentStatus) updatePayload.payment_status = paymentStatus;
-    const { error } = await supabase
-      .from("orders")
-      .update(updatePayload)
-      .eq("id", orderId);
-    if (error) {
-      console.error("Failed to update order:", error);
-      return;
-    }
-    setSelectedOrder(null);
-    await loadOrders();
-  };
+  const [filter, setFilter] = useState<OrderFilterKey>("all");
 
   const filteredOrders = orders.filter((o) => {
     if (filter === "pending-payment")
@@ -127,9 +37,16 @@ export default function OrdersPage() {
     return true;
   });
 
-  if (loading) return <LoadingSpinner />;
+  const handleUpdateStatus = async (
+    id: string,
+    status?: string,
+    paymentStatus?: string,
+  ) => {
+    await updateOrderStatus(id, status, paymentStatus);
+    setSelectedOrder(null);
+  };
 
-  const filterBtn = (key: FilterKey, label: string) => (
+  const filterBtn = (key: OrderFilterKey, label: string) => (
     <button
       onClick={() => setFilter(key)}
       className={`btn ${filter === key ? "btn-primary" : "btn-secondary"}`}
@@ -137,6 +54,8 @@ export default function OrdersPage() {
       {label}
     </button>
   );
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -194,11 +113,9 @@ export default function OrdersPage() {
                     <p>Date: {formatDate(order.created_at)}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-black">
-                    {formatPrice(order.total_amount)}
-                  </p>
-                </div>
+                <p className="text-2xl font-bold text-black">
+                  {formatPrice(order.total_amount)}
+                </p>
               </div>
             </div>
           ))}

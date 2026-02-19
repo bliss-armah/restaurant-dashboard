@@ -1,107 +1,41 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Plus, Edit2, FolderOpen } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useCategories } from "@/lib/hooks/useCategories";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { CategoryModal } from "@/components/dashboard/CategoryModal";
-
-interface Category {
-  id: string;
-  name: string;
-  description: string | null;
-  sort_order: number;
-  is_active: boolean;
-  restaurant_id: string;
-  created_at: string;
-}
-
-interface CategoryFormData {
-  name: string;
-  description: string;
-  sort_order: number;
-}
+import type { Category } from "@/lib/types";
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const {
+    categories,
+    loading,
+    createCategory,
+    updateCategory,
+    toggleCategoryActive,
+  } = useCategories();
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-  const loadCategories = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from("menu_categories")
-        .select("*")
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error: any) {
-      console.error("Failed to load categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCategories();
-    const sub = supabase
-      .channel("categories")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "menu_categories" },
-        loadCategories,
-      )
-      .subscribe();
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [loadCategories]);
+  const [showModal, setShowModal] = useState(false);
 
   const openCreate = () => {
     setEditingCategory(null);
     setShowModal(true);
   };
-
-  const openEdit = (category: Category) => {
-    setEditingCategory(category);
+  const openEdit = (c: Category) => {
+    setEditingCategory(c);
     setShowModal(true);
   };
-
-  const handleSubmit = async (formData: CategoryFormData) => {
-    if (editingCategory) {
-      const { error } = await supabase
-        .from("menu_categories")
-        .update({ ...formData, updated_at: new Date().toISOString() })
-        .eq("id", editingCategory.id);
-      if (error) throw error;
-    } else {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const restaurantId = user?.user_metadata?.restaurantId;
-      const { error } = await supabase.from("menu_categories").insert({
-        ...formData,
-        restaurant_id: restaurantId,
-        updated_at: new Date().toISOString(),
-      });
-      if (error) throw error;
-    }
+  const closeModal = () => {
     setShowModal(false);
     setEditingCategory(null);
-    await loadCategories();
   };
 
-  const handleToggleActive = async (category: Category) => {
-    const { error } = await supabase
-      .from("menu_categories")
-      .update({
-        is_active: !category.is_active,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", category.id);
-    if (error) console.error("Failed to toggle category:", error);
+  const handleSubmit = async (data: Parameters<typeof createCategory>[0]) => {
+    if (editingCategory) await updateCategory(editingCategory.id, data);
+    else await createCategory(data);
+    closeModal();
   };
 
   if (loading) return <LoadingSpinner />;
@@ -113,8 +47,7 @@ export default function CategoriesPage() {
         subtitle="Organize your menu • Real-time updates ⚡"
         action={
           <button onClick={openCreate} className="btn btn-primary">
-            <Plus className="w-5 h-5" />
-            Add Category
+            <Plus className="w-5 h-5" /> Add Category
           </button>
         }
       />
@@ -129,8 +62,7 @@ export default function CategoriesPage() {
             Get started by creating your first category
           </p>
           <button onClick={openCreate} className="btn btn-primary mx-auto">
-            <Plus className="w-5 h-5" />
-            Create Category
+            <Plus className="w-5 h-5" /> Create Category
           </button>
         </div>
       ) : (
@@ -164,7 +96,7 @@ export default function CategoriesPage() {
                   Order: {category.sort_order}
                 </span>
                 <button
-                  onClick={() => handleToggleActive(category)}
+                  onClick={() => toggleCategoryActive(category)}
                   className={`badge ${category.is_active ? "badge-success" : "badge-warning"}`}
                 >
                   {category.is_active ? "Active" : "Inactive"}
@@ -187,10 +119,7 @@ export default function CategoriesPage() {
                 }
               : { name: "", description: "", sort_order: categories.length }
           }
-          onClose={() => {
-            setShowModal(false);
-            setEditingCategory(null);
-          }}
+          onClose={closeModal}
           onSubmit={handleSubmit}
         />
       )}

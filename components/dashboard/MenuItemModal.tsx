@@ -2,20 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
-
-interface Category {
-  id: string;
-  name: string;
-}
-
-interface MenuItemFormData {
-  name: string;
-  description: string;
-  price: string;
-  category_id: string;
-  image_url: string;
-  sort_order: number;
-}
+import type { MenuItemFormData, Category } from "@/lib/types";
 
 interface MenuItemModalProps {
   categories: Category[];
@@ -75,7 +62,6 @@ export function MenuItemModal({
             {error}
           </div>
         )}
-
         <div>
           <label className="block text-sm font-medium mb-2">Item Name *</label>
           <input
@@ -87,7 +73,6 @@ export function MenuItemModal({
             required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">Category *</label>
           <select
@@ -104,7 +89,6 @@ export function MenuItemModal({
             ))}
           </select>
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">
             Price (GHS) *
@@ -119,7 +103,6 @@ export function MenuItemModal({
             required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">
             Description (Optional)
@@ -132,7 +115,6 @@ export function MenuItemModal({
             placeholder="Brief description..."
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">
             Image URL (Optional)
@@ -145,7 +127,6 @@ export function MenuItemModal({
             placeholder="https://..."
           />
         </div>
-
         <div className="flex gap-3 pt-2">
           <button
             type="button"

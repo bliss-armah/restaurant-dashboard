@@ -3,27 +3,7 @@
 import { Modal } from "@/components/ui/Modal";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { Check, X } from "lucide-react";
-
-interface OrderItem {
-  id: string;
-  item_name: string;
-  item_price: number;
-  quantity: number;
-  subtotal: number;
-}
-
-interface Order {
-  id: string;
-  order_number: string;
-  total_amount: number;
-  status: string;
-  payment_status: string;
-  delivery_address: string | null;
-  customer_notes: string | null;
-  created_at: string;
-  customer: { name: string | null; phone: string };
-  items: OrderItem[];
-}
+import type { Order } from "@/lib/types";
 
 interface OrderDetailModalProps {
   order: Order;
@@ -50,7 +30,6 @@ export function OrderDetailModal({
   return (
     <Modal title={order.order_number} onClose={onClose}>
       <div className="space-y-6">
-        {/* Meta */}
         <p className="text-sm text-gray-500 -mt-2">
           {formatDate(order.created_at)}
         </p>

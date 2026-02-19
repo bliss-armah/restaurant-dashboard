@@ -1,126 +1,43 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Plus, Edit2, UtensilsCrossed } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useMenuItems } from "@/lib/hooks/useMenuItems";
 import { formatPrice } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { MenuItemModal } from "@/components/dashboard/MenuItemModal";
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  category_id: string;
-  image_url: string | null;
-  is_available: boolean;
-  sort_order: number;
-  category?: { id: string; name: string };
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
-
-interface MenuItemFormData {
-  name: string;
-  description: string;
-  price: string;
-  category_id: string;
-  image_url: string;
-  sort_order: number;
-}
+import type { MenuItem } from "@/lib/types";
 
 export default function MenuItemsPage() {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const {
+    menuItems,
+    categories,
+    loading,
+    createMenuItem,
+    updateMenuItem,
+    toggleItemAvailable,
+  } = useMenuItems();
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-
-  const loadData = useCallback(async () => {
-    try {
-      const [itemsRes, categoriesRes] = await Promise.all([
-        supabase
-          .from("menu_items")
-          .select("*, category:category_id(id, name)")
-          .order("sort_order"),
-        supabase.from("menu_categories").select("id, name").order("sort_order"),
-      ]);
-      if (itemsRes.error) throw itemsRes.error;
-      if (categoriesRes.error) throw categoriesRes.error;
-      setMenuItems(itemsRes.data || []);
-      setCategories(categoriesRes.data || []);
-    } catch (error: any) {
-      console.error("Failed to load data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-    const sub = supabase
-      .channel("menu-items")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "menu_items" },
-        loadData,
-      )
-      .subscribe();
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [loadData]);
+  const [showModal, setShowModal] = useState(false);
 
   const openCreate = () => {
     setEditingItem(null);
     setShowModal(true);
   };
-
   const openEdit = (item: MenuItem) => {
     setEditingItem(item);
     setShowModal(true);
   };
-
-  const handleSubmit = async (formData: MenuItemFormData) => {
-    const payload = {
-      name: formData.name,
-      description: formData.description || null,
-      price: parseFloat(formData.price),
-      category_id: formData.category_id,
-      image_url: formData.image_url || null,
-      sort_order: formData.sort_order,
-      updated_at: new Date().toISOString(),
-    };
-
-    if (editingItem) {
-      const { error } = await supabase
-        .from("menu_items")
-        .update(payload)
-        .eq("id", editingItem.id);
-      if (error) throw error;
-    } else {
-      const { error } = await supabase.from("menu_items").insert(payload);
-      if (error) throw error;
-    }
+  const closeModal = () => {
     setShowModal(false);
     setEditingItem(null);
-    await loadData();
   };
 
-  const handleToggleAvailable = async (item: MenuItem) => {
-    const { error } = await supabase
-      .from("menu_items")
-      .update({
-        is_available: !item.is_available,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", item.id);
-    if (error) console.error("Failed to toggle item:", error);
+  const handleSubmit = async (data: Parameters<typeof createMenuItem>[0]) => {
+    if (editingItem) await updateMenuItem(editingItem.id, data);
+    else await createMenuItem(data);
+    closeModal();
   };
 
   if (loading) return <LoadingSpinner />;
@@ -132,8 +49,7 @@ export default function MenuItemsPage() {
         subtitle="Manage your restaurant menu • Real-time ⚡"
         action={
           <button onClick={openCreate} className="btn btn-primary">
-            <Plus className="w-5 h-5" />
-            Add Item
+            <Plus className="w-5 h-5" /> Add Item
           </button>
         }
       />
@@ -148,8 +64,7 @@ export default function MenuItemsPage() {
             Create your first menu item to get started
           </p>
           <button onClick={openCreate} className="btn btn-primary mx-auto">
-            <Plus className="w-5 h-5" />
-            Add Menu Item
+            <Plus className="w-5 h-5" /> Add Menu Item
           </button>
         </div>
       ) : (
@@ -171,16 +86,12 @@ export default function MenuItemsPage() {
                   className="hover:bg-black-50 transition-colors"
                 >
                   <td>
-                    <div>
-                      <div className="font-semibold text-black">
-                        {item.name}
+                    <div className="font-semibold text-black">{item.name}</div>
+                    {item.description && (
+                      <div className="text-sm text-black-400 mt-1">
+                        {item.description}
                       </div>
-                      {item.description && (
-                        <div className="text-sm text-black-400 mt-1">
-                          {item.description}
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </td>
                   <td>
                     <span className="badge badge-info">
@@ -190,7 +101,7 @@ export default function MenuItemsPage() {
                   <td className="font-semibold">{formatPrice(item.price)}</td>
                   <td>
                     <button
-                      onClick={() => handleToggleAvailable(item)}
+                      onClick={() => toggleItemAvailable(item)}
                       className={`badge ${item.is_available ? "badge-success" : "badge-warning"}`}
                     >
                       {item.is_available ? "Available" : "Unavailable"}
@@ -227,10 +138,7 @@ export default function MenuItemsPage() {
                 }
               : undefined
           }
-          onClose={() => {
-            setShowModal(false);
-            setEditingItem(null);
-          }}
+          onClose={closeModal}
           onSubmit={handleSubmit}
         />
       )}

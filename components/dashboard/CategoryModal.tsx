@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
-
-interface CategoryFormData {
-  name: string;
-  description: string;
-  sort_order: number;
-}
+import type { CategoryFormData } from "@/lib/types";
 
 interface CategoryModalProps {
   initialData?: CategoryFormData;
@@ -49,7 +44,6 @@ export function CategoryModal({
             {error}
           </div>
         )}
-
         <div>
           <label className="block text-sm font-medium mb-2">
             Category Name *
@@ -63,7 +57,6 @@ export function CategoryModal({
             required
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">
             Description (Optional)
@@ -78,7 +71,6 @@ export function CategoryModal({
             placeholder="Brief description..."
           />
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">Sort Order</label>
           <input
@@ -94,7 +86,6 @@ export function CategoryModal({
             min="0"
           />
         </div>
-
         <div className="flex gap-3 pt-2">
           <button
             type="button"
