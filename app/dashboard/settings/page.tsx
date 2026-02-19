@@ -1,15 +1,13 @@
 import { Settings, Store, Phone, CreditCard } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function SettingsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-black">Settings</h1>
-        <p className="text-black-400 mt-2">
-          Manage your restaurant configuration
-        </p>
-      </div>
+      <PageHeader
+        title="Settings"
+        subtitle="Manage your restaurant configuration"
+      />
 
       {/* Settings Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -23,7 +21,6 @@ export default function SettingsPage() {
               Restaurant Information
             </h2>
           </div>
-
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-black mb-2">
@@ -36,7 +33,6 @@ export default function SettingsPage() {
                 defaultValue="Restaurant Name"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-black mb-2">
                 Description
@@ -48,7 +44,6 @@ export default function SettingsPage() {
                 defaultValue="Best food in town"
               />
             </div>
-
             <button className="btn btn-primary w-full">Save Changes</button>
           </div>
         </div>
@@ -61,7 +56,6 @@ export default function SettingsPage() {
             </div>
             <h2 className="text-xl font-bold text-black">WhatsApp Settings</h2>
           </div>
-
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-black mb-2">
@@ -78,7 +72,6 @@ export default function SettingsPage() {
                 Contact support to change this number
               </p>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-black mb-2">
                 Business Account ID
@@ -103,7 +96,6 @@ export default function SettingsPage() {
               MoMo Payment Details
             </h2>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-black mb-2">
@@ -116,7 +108,6 @@ export default function SettingsPage() {
                 defaultValue="+233 24 123 4567"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-black mb-2">
                 Account Name
@@ -128,7 +119,6 @@ export default function SettingsPage() {
                 defaultValue="Restaurant Name"
               />
             </div>
-
             <div className="md:col-span-2">
               <button className="btn btn-primary">
                 Update Payment Details
@@ -150,7 +140,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <p className="text-black-400">Last Updated</p>
-            <p className="font-semibold text-black">Feb 13, 2026</p>
+            <p className="font-semibold text-black">Feb 19, 2026</p>
           </div>
           <div>
             <p className="text-black-400">Status</p>

@@ -1,63 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Edit2, FolderOpen } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { CategoryModal } from "@/components/dashboard/CategoryModal";
 
 interface Category {
   id: string;
   name: string;
   description: string | null;
   sort_order: number;
-  isActive: boolean;
-  restaurantId: string;
-  createdAt: string;
+  is_active: boolean;
+  restaurant_id: string;
+  created_at: string;
+}
+
+interface CategoryFormData {
+  name: string;
+  description: string;
+  sort_order: number;
 }
 
 export default function CategoriesPage() {
-  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    sort_order: 0,
-  });
 
-  useEffect(() => {
-    loadCategories();
-
-    // Real-time subscription for category changes
-    const subscription = supabase
-      .channel("categories")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "menu_categories",
-        },
-        () => {
-          loadCategories();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("menu_categories")
         .select("*")
         .order("sort_order", { ascending: true });
-
       if (error) throw error;
       setCategories(data || []);
     } catch (error: any) {
@@ -65,102 +42,83 @@ export default function CategoriesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+  useEffect(() => {
+    loadCategories();
+    const sub = supabase
+      .channel("categories")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "menu_categories" },
+        loadCategories,
+      )
+      .subscribe();
+    return () => {
+      sub.unsubscribe();
+    };
+  }, [loadCategories]);
 
-      if (editingCategory) {
-        const { error } = await supabase
-          .from("menu_categories")
-          .update(formData)
-          .eq("id", editingCategory.id);
-
-        if (error) throw error;
-      } else {
-        // Get user's restaurant ID (you'll need to add this to your User table or fetch logic)
-        const { error } = await supabase.from("menu_categories").insert([
-          {
-            ...formData,
-            restaurantId: "1", // TODO: Get from user session/metadata
-          },
-        ]);
-
-        if (error) throw error;
-      }
-
-      setShowModal(false);
-      setEditingCategory(null);
-      setFormData({ name: "", description: "", sort_order: 0 });
-    } catch (error) {
-      console.error("Failed to save category:", error);
-    }
-  };
-
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    setFormData({
-      name: category.name,
-      description: category.description || "",
-      sort_order: category.sort_order,
-    });
+  const openCreate = () => {
+    setEditingCategory(null);
     setShowModal(true);
   };
 
-  const handleToggleActive = async (category: Category) => {
-    try {
-      const { error } = await supabase
-        .from("menu_categories")
-        .update({ isActive: !category.isActive })
-        .eq("id", category.id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error("Failed to toggle category:", error);
-    }
+  const openEdit = (category: Category) => {
+    setEditingCategory(category);
+    setShowModal(true);
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const handleSubmit = async (formData: CategoryFormData) => {
+    if (editingCategory) {
+      const { error } = await supabase
+        .from("menu_categories")
+        .update({ ...formData, updated_at: new Date().toISOString() })
+        .eq("id", editingCategory.id);
+      if (error) throw error;
+    } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const restaurantId = user?.user_metadata?.restaurantId;
+      const { error } = await supabase.from("menu_categories").insert({
+        ...formData,
+        restaurant_id: restaurantId,
+        updated_at: new Date().toISOString(),
+      });
+      if (error) throw error;
+    }
+    setShowModal(false);
+    setEditingCategory(null);
+    await loadCategories();
+  };
+
+  const handleToggleActive = async (category: Category) => {
+    const { error } = await supabase
+      .from("menu_categories")
+      .update({
+        is_active: !category.is_active,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", category.id);
+    if (error) console.error("Failed to toggle category:", error);
+  };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-black">Categories</h1>
-          <p className="text-black-400 mt-2">
-            Organize your menu • Real-time updates ⚡
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setEditingCategory(null);
-            setFormData({
-              name: "",
-              description: "",
-              sort_order: categories.length,
-            });
-            setShowModal(true);
-          }}
-          className="btn btn-primary"
-        >
-          <Plus className="w-5 h-5" />
-          Add Category
-        </button>
-      </div>
+      <PageHeader
+        title="Categories"
+        subtitle="Organize your menu • Real-time updates ⚡"
+        action={
+          <button onClick={openCreate} className="btn btn-primary">
+            <Plus className="w-5 h-5" />
+            Add Category
+          </button>
+        }
+      />
 
-      {/* Categories Grid */}
       {categories.length === 0 ? (
         <div className="card text-center py-12">
           <FolderOpen className="w-16 h-16 text-black-300 mx-auto mb-4" />
@@ -170,10 +128,7 @@ export default function CategoriesPage() {
           <p className="text-black-400 mb-6">
             Get started by creating your first category
           </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="btn btn-primary mx-auto"
-          >
+          <button onClick={openCreate} className="btn btn-primary mx-auto">
             <Plus className="w-5 h-5" />
             Create Category
           </button>
@@ -198,22 +153,21 @@ export default function CategoriesPage() {
                   )}
                 </div>
                 <button
-                  onClick={() => handleEdit(category)}
+                  onClick={() => openEdit(category)}
                   className="btn btn-ghost p-2"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
               </div>
-
               <div className="flex items-center justify-between pt-4 border-t-2 border-black-200">
                 <span className="text-xs text-black-400">
                   Order: {category.sort_order}
                 </span>
                 <button
                   onClick={() => handleToggleActive(category)}
-                  className={`badge ${category.isActive ? "badge-success" : "badge-warning"}`}
+                  className={`badge ${category.is_active ? "badge-success" : "badge-warning"}`}
                 >
-                  {category.isActive ? "Active" : "Inactive"}
+                  {category.is_active ? "Active" : "Inactive"}
                 </button>
               </div>
             </div>
@@ -221,82 +175,24 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full animate-slide-up">
-            <h2 className="text-2xl font-bold text-black mb-6">
-              {editingCategory ? "Edit Category" : "Create Category"}
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Category Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="input"
-                  placeholder="e.g., Main Dishes"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Description (Optional)
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  className="input resize-none"
-                  rows={3}
-                  placeholder="Brief description..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Sort Order
-                </label>
-                <input
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      sort_order: parseInt(e.target.value),
-                    })
-                  }
-                  className="input"
-                  min="0"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowModal(false);
-                    setEditingCategory(null);
-                  }}
-                  className="btn btn-secondary flex-1"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary flex-1">
-                  {editingCategory ? "Update" : "Create"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <CategoryModal
+          title={editingCategory ? "Edit Category" : "Create Category"}
+          initialData={
+            editingCategory
+              ? {
+                  name: editingCategory.name,
+                  description: editingCategory.description || "",
+                  sort_order: editingCategory.sort_order,
+                }
+              : { name: "", description: "", sort_order: categories.length }
+          }
+          onClose={() => {
+            setShowModal(false);
+            setEditingCategory(null);
+          }}
+          onSubmit={handleSubmit}
+        />
       )}
     </div>
   );

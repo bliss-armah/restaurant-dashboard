@@ -6,8 +6,9 @@ import {
   FolderOpen,
   UtensilsCrossed,
 } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { StatCard } from "@/components/ui/StatCard";
 
-// This would normally fetch from API using server component
 async function getDashboardStats() {
   // Placeholder data - in production this would fetch from API
   return {
@@ -23,68 +24,54 @@ export default async function DashboardPage() {
 
   const statCards = [
     {
-      title: "Total Orders",
+      label: "Total Orders",
       value: stats.totalOrders,
       icon: ShoppingBag,
-      change: "+12% from last month",
+      subLabel: "+12% from last month",
     },
     {
-      title: "Revenue",
+      label: "Revenue",
       value: `GHS ${stats.revenue.toLocaleString()}`,
       icon: DollarSign,
-      change: "+23% from last month",
+      subLabel: "+23% from last month",
     },
     {
-      title: "Customers",
+      label: "Customers",
       value: stats.customers,
       icon: Users,
-      change: "+8% from last month",
+      subLabel: "+8% from last month",
     },
     {
-      title: "Avg Order Value",
+      label: "Avg Order Value",
       value: `GHS ${stats.avgOrderValue.toFixed(2)}`,
       icon: TrendingUp,
-      change: "+5% from last month",
+      subLabel: "+5% from last month",
     },
   ];
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-        <p className="text-black-400 mt-2">
-          Welcome back! Here's what's happening today.
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Welcome back! Here's what's happening today."
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {statCards.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.title}
-              className="card animate-slide-up"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm text-black-400 font-medium">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl md:text-3xl font-bold text-black mt-2">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-black-400 mt-2">{stat.change}</p>
-                </div>
-                <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {statCards.map((stat, index) => (
+          <div
+            key={stat.label}
+            className="animate-slide-up"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <StatCard
+              icon={stat.icon}
+              label={stat.label}
+              value={stat.value}
+              subLabel={stat.subLabel}
+            />
+          </div>
+        ))}
       </div>
 
       {/* Quick Actions */}
@@ -115,7 +102,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity Placeholder */}
+      {/* Recent Activity */}
       <div className="card">
         <h2 className="text-xl font-bold text-black mb-4">Recent Activity</h2>
         <p className="text-black-400 text-center py-8">
