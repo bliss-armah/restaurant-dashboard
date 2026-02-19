@@ -57,9 +57,6 @@ export default function LoginPage() {
             <LogIn className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-black">Restaurant Admin</h1>
-          <p className="text-gray-600 mt-2">
-            Sign in with email or phone number
-          </p>
         </div>
 
         {/* Login Form */}
@@ -171,25 +168,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          <div className="mt-6 pt-6 border-t-2 border-gray-200">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800 font-medium mb-1">
-                👤 Admin Access
-              </p>
-              <p className="text-xs text-blue-600">
-                {loginMethod === "email"
-                  ? "Use your Supabase Auth email and password"
-                  : "Use your phone number (with country code) and password"}
-              </p>
-            </div>
-          </div>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-gray-600 text-sm mt-8">
-          WhatsApp Restaurant Ordering System • Powered by Supabase
-        </p>
       </div>
     </div>
   );
