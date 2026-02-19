@@ -23,7 +23,7 @@ export default function SuperAdminDashboardPage() {
   if (!isReady) return null;
 
   return (
-    <div className="p-8">
+    <div>
       <PageHeader
         title="Super Admin Dashboard"
         subtitle="Platform overview and analytics"

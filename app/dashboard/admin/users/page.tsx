@@ -24,7 +24,7 @@ export default function SuperAdminUsersPage() {
   ).length;
 
   return (
-    <div className="p-8">
+    <div>
       <PageHeader
         title="User Management"
         subtitle="Manage restaurant admins and super admins"

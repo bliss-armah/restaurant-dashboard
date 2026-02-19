@@ -52,7 +52,7 @@ export default function DashboardLayout({
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 backdrop-blur-sm bg-black/30 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -199,7 +199,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <main>{children}</main>
+        <main className="p-8">{children}</main>
       </div>
     </div>
   );

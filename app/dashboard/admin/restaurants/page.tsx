@@ -53,7 +53,7 @@ export default function SuperAdminRestaurantsPage() {
   };
 
   return (
-    <div className="p-8">
+    <div>
       <PageHeader
         title="Restaurants"
         subtitle="Manage all restaurants on the platform"
