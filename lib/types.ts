@@ -48,6 +48,15 @@ export interface DashboardStats {
   recentActivity: Activity[];
 }
 
+export interface RestaurantDashboardStats {
+  totalOrders: number;
+  pendingOrders: number;
+  revenue: number;
+  avgOrderValue: number;
+  totalMenuItems: number;
+  totalCategories: number;
+}
+
 // ---- Category types ----
 
 export interface Category {

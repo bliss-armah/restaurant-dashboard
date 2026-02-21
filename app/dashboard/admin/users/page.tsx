@@ -9,11 +9,16 @@ import { StatCard } from "@/components/ui/StatCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { UserTable } from "@/components/admin/UserTable";
 import { UserModal } from "@/components/admin/UserModal";
+import { EditRoleModal } from "@/components/admin/EditRoleModal";
+import { User } from "@/lib/types";
 
 export default function SuperAdminUsersPage() {
   const { isReady, loading: authLoading } = useAdminGuard();
-  const { users, restaurants, loading, createUser } = useUsers(isReady);
-  const [showModal, setShowModal] = useState(false);
+  const { users, restaurants, loading, createUser, updateUserRole } =
+    useUsers(isReady);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   if (authLoading || loading) return <LoadingSpinner />;
   if (!isReady) return null;
@@ -30,7 +35,7 @@ export default function SuperAdminUsersPage() {
         subtitle="Manage restaurant admins and super admins"
         action={
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => setShowCreateModal(true)}
             className="btn btn-primary"
           >
             <Plus className="w-5 h-5" />
@@ -49,15 +54,27 @@ export default function SuperAdminUsersPage() {
         />
       </div>
 
-      <UserTable users={users} />
+      <UserTable users={users} onEditRole={(user) => setEditingUser(user)} />
 
-      {showModal && (
+      {showCreateModal && (
         <UserModal
           restaurants={restaurants}
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowCreateModal(false)}
           onSubmit={async (data) => {
             await createUser(data);
-            setShowModal(false);
+            setShowCreateModal(false);
+          }}
+        />
+      )}
+
+      {editingUser && (
+        <EditRoleModal
+          user={editingUser}
+          restaurants={restaurants}
+          onClose={() => setEditingUser(null)}
+          onSubmit={async (userId, role, restaurantId) => {
+            await updateUserRole(userId, role, restaurantId);
+            setEditingUser(null);
           }}
         />
       )}

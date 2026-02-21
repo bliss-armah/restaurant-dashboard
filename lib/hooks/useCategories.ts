@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 import type { Category, CategoryFormData } from "@/lib/types";
 
 export function useCategories() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,10 +42,12 @@ export function useCategories() {
 
   const createCategory = useCallback(
     async (data: CategoryFormData) => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const restaurantId = user?.user_metadata?.restaurantId;
+      const restaurantId = user?.restaurantId;
+      if (!restaurantId) {
+        throw new Error(
+          "No restaurant linked to your account. Contact support.",
+        );
+      }
       const { error } = await supabase.from("menu_categories").insert({
         ...data,
         restaurant_id: restaurantId,
@@ -52,7 +56,7 @@ export function useCategories() {
       if (error) throw error;
       await loadCategories();
     },
-    [loadCategories],
+    [loadCategories, user],
   );
 
   const updateCategory = useCallback(

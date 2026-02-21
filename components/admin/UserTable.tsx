@@ -1,13 +1,14 @@
 "use client";
 
-import { Mail, Phone, Users } from "lucide-react";
+import { Mail, Phone, Users, Pencil } from "lucide-react";
 import { User } from "@/lib/types";
 
 interface UserTableProps {
   users: User[];
+  onEditRole?: (user: User) => void;
 }
 
-export function UserTable({ users }: UserTableProps) {
+export function UserTable({ users, onEditRole }: UserTableProps) {
   if (users.length === 0) {
     return (
       <div className="card text-center py-12">
@@ -28,6 +29,7 @@ export function UserTable({ users }: UserTableProps) {
             <th>Restaurant</th>
             <th>Status</th>
             <th>Created</th>
+            {onEditRole && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -82,6 +84,18 @@ export function UserTable({ users }: UserTableProps) {
               <td className="text-sm text-gray-600">
                 {new Date(user.created_at).toLocaleDateString()}
               </td>
+              {onEditRole && (
+                <td>
+                  <button
+                    onClick={() => onEditRole(user)}
+                    className="btn btn-ghost btn-sm flex items-center gap-1"
+                    title="Edit role"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Edit Role
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
