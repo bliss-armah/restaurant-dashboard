@@ -14,19 +14,20 @@ export function useOrders() {
         .from("orders")
         .select(
           `
-          id,
-          order_number,
-          total_amount,
-          status,
-          payment_status,
-          delivery_address,
-          customer_notes,
-          created_at,
-          customer:customer_id(name, phone),
-          items:order_items(id, item_name, item_price, quantity, subtotal)
-        `,
+    id,
+    order_number,
+    total_amount,
+    status,
+    payment_status,
+    delivery_address,
+    customer_notes,
+    created_at,
+    customer:customer_id(name, phone),
+    items:order_items(id, item_name, item_price, quantity, subtotal)
+  `,
         )
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .returns<Order[]>();
       if (error) throw error;
       setOrders(data || []);
     } catch (err: any) {
