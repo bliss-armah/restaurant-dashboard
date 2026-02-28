@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Restaurant } from "@/lib/types";
 
@@ -28,6 +29,7 @@ export function UserModal({ restaurants, onClose, onSubmit }: UserModalProps) {
     role: "RESTAURANT_ADMIN",
     restaurantId: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -95,15 +97,28 @@ export function UserModal({ restaurants, onClose, onSubmit }: UserModalProps) {
 
         <div>
           <label className="block text-sm font-medium mb-2">Password *</label>
-          <input
-            type="password"
-            value={formData.password}
-            onChange={set("password")}
-            className="input"
-            placeholder="••••••••"
-            minLength={8}
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={set("password")}
+              className="input pr-10"
+              placeholder="••••••••"
+              minLength={8}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+            >
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
+            </button>
+          </div>
           <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
         </div>
 
