@@ -25,7 +25,7 @@ const PAYMENT_BADGE: Record<string, string> = {
 };
 
 export default function OrdersPage() {
-  const { orders, loading, updateOrderStatus } = useOrders();
+  const { orders, loading, error, updateOrderStatus } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filter, setFilter] = useState<OrderFilterKey>("all");
 
@@ -56,6 +56,14 @@ export default function OrdersPage() {
   );
 
   if (loading) return <LoadingSpinner />;
+
+  if (error) {
+    return (
+      <div className="card text-center py-12">
+        <p className="text-red-500 font-medium">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
