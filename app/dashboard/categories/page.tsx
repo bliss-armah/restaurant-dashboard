@@ -3,19 +3,25 @@
 import { useState } from "react";
 import { Plus, Edit2, FolderOpen } from "lucide-react";
 import { useCategories } from "@/lib/hooks/useCategories";
+import { useAuth } from "@/lib/auth-context";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { CategoryModal } from "@/components/dashboard/CategoryModal";
+import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
 import type { Category } from "@/lib/types";
 
 export default function CategoriesPage() {
+  const { isSuperAdmin } = useAuth();
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState("");
+
   const {
     categories,
     loading,
     createCategory,
     updateCategory,
     toggleCategoryActive,
-  } = useCategories();
+  } = useCategories(selectedRestaurantId || undefined);
+
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showModal, setShowModal] = useState(false);
 
@@ -38,7 +44,8 @@ export default function CategoriesPage() {
     closeModal();
   };
 
-  if (loading) return <LoadingSpinner />;
+  // Super admin must pick a restaurant first before creating items
+  const canCreate = !isSuperAdmin || !!selectedRestaurantId;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -46,24 +53,46 @@ export default function CategoriesPage() {
         title="Categories"
         subtitle="Organize your menu • Real-time updates ⚡"
         action={
-          <button onClick={openCreate} className="btn btn-primary">
-            <Plus className="w-5 h-5" /> Add Category
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <RestaurantSelector
+              value={selectedRestaurantId}
+              onChange={setSelectedRestaurantId}
+            />
+            {canCreate && (
+              <button onClick={openCreate} className="btn btn-primary">
+                <Plus className="w-5 h-5" /> Add Category
+              </button>
+            )}
+          </div>
         }
       />
 
-      {categories.length === 0 ? (
+      {isSuperAdmin && !selectedRestaurantId ? (
         <div className="card text-center py-12">
-          <FolderOpen className="w-16 h-16 text-black-300 mx-auto mb-4" />
+          <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-black mb-2">
+            Select a restaurant
+          </h3>
+          <p className="text-gray-400">
+            Choose a restaurant above to view and manage its categories.
+          </p>
+        </div>
+      ) : loading ? (
+        <LoadingSpinner />
+      ) : categories.length === 0 ? (
+        <div className="card text-center py-12">
+          <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-black mb-2">
             No categories yet
           </h3>
-          <p className="text-black-400 mb-6">
+          <p className="text-gray-400 mb-6">
             Get started by creating your first category
           </p>
-          <button onClick={openCreate} className="btn btn-primary mx-auto">
-            <Plus className="w-5 h-5" /> Create Category
-          </button>
+          {canCreate && (
+            <button onClick={openCreate} className="btn btn-primary mx-auto">
+              <Plus className="w-5 h-5" /> Create Category
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -79,7 +108,7 @@ export default function CategoriesPage() {
                     {category.name}
                   </h3>
                   {category.description && (
-                    <p className="text-sm text-black-400 mt-1">
+                    <p className="text-sm text-gray-400 mt-1">
                       {category.description}
                     </p>
                   )}
@@ -91,8 +120,8 @@ export default function CategoriesPage() {
                   <Edit2 className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex items-center justify-between pt-4 border-t-2 border-black-200">
-                <span className="text-xs text-black-400">
+              <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
+                <span className="text-xs text-gray-400">
                   Order: {category.sort_order}
                 </span>
                 <button

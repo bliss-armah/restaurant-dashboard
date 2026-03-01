@@ -105,7 +105,7 @@ export default function DashboardPage() {
     <div className="space-y-8 animate-fade-in">
       <PageHeader
         title="Dashboard"
-        subtitle={`Welcome back${user?.name ? `, ${user.name}` : ""}! Here's what's happening today.`}
+        subtitle={`Welcome back ${user?.name ? `, ${user.name}` : ""}! Here's what's happening today.`}
       />
 
       {/* Stats Grid */}

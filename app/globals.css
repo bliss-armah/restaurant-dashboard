@@ -85,6 +85,7 @@ body {
   border-radius: 0.75rem;
   padding: 1.5rem;
   transition: box-shadow 0.2s;
+  overflow-x: auto;
 }
 
 .card:hover {

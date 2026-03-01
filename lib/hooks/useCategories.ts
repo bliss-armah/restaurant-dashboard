@@ -5,16 +5,27 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 import type { Category, CategoryFormData } from "@/lib/types";
 
-export function useCategories() {
+export function useCategories(restaurantIdOverride?: string) {
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Super admins pass an explicit restaurantIdOverride.
+  // Restaurant admins use their own restaurantId from auth.
+  const restaurantId = restaurantIdOverride ?? user?.restaurantId;
+
   const loadCategories = useCallback(async () => {
+    // If no restaurant is selected yet, clear the list and stop loading.
+    if (!restaurantId) {
+      setCategories([]);
+      setLoading(false);
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from("menu_categories")
         .select("*")
+        .eq("restaurant_id", restaurantId)
         .order("sort_order", { ascending: true });
       if (error) throw error;
       setCategories(data || []);
@@ -23,12 +34,13 @@ export function useCategories() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [restaurantId]);
 
   useEffect(() => {
+    setLoading(true);
     loadCategories();
     const sub = supabase
-      .channel("categories-hook")
+      .channel(`categories-hook-${restaurantId ?? "none"}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "menu_categories" },
@@ -38,25 +50,21 @@ export function useCategories() {
     return () => {
       sub.unsubscribe();
     };
-  }, [loadCategories]);
+  }, [loadCategories, restaurantId]);
 
   const createCategory = useCallback(
     async (data: CategoryFormData) => {
-      const restaurantId = user?.restaurantId;
-      if (!restaurantId) {
-        throw new Error(
-          "No restaurant linked to your account. Contact support.",
-        );
-      }
+      const rid = restaurantId;
+      if (!rid) throw new Error("No restaurant selected.");
       const { error } = await supabase.from("menu_categories").insert({
         ...data,
-        restaurant_id: restaurantId,
+        restaurant_id: rid,
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
       await loadCategories();
     },
-    [loadCategories, user],
+    [loadCategories, restaurantId],
   );
 
   const updateCategory = useCallback(
@@ -89,6 +97,7 @@ export function useCategories() {
   return {
     categories,
     loading,
+    restaurantId,
     createCategory,
     updateCategory,
     toggleCategoryActive,

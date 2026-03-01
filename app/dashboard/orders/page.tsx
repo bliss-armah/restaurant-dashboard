@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useOrders } from "@/lib/hooks/useOrders";
+import { useAuth } from "@/lib/auth-context";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { OrderDetailModal } from "@/components/dashboard/OrderDetailModal";
+import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
 import type { Order, OrderFilterKey } from "@/lib/types";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -25,7 +27,11 @@ const PAYMENT_BADGE: Record<string, string> = {
 };
 
 export default function OrdersPage() {
-  const { orders, loading, error, updateOrderStatus } = useOrders();
+  const { isSuperAdmin } = useAuth();
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState("");
+  const { orders, loading, error, updateOrderStatus } = useOrders(
+    selectedRestaurantId || undefined,
+  );
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filter, setFilter] = useState<OrderFilterKey>("all");
 
@@ -55,23 +61,17 @@ export default function OrdersPage() {
     </button>
   );
 
-  if (loading) return <LoadingSpinner />;
-
-  if (error) {
-    return (
-      <div className="card text-center py-12">
-        <p className="text-red-500 font-medium">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
         title="Orders"
         subtitle="Manage customer orders • Real-time ⚡"
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <RestaurantSelector
+              value={selectedRestaurantId}
+              onChange={setSelectedRestaurantId}
+            />
             {filterBtn("all", "All")}
             {filterBtn("pending-payment", "Pending Payment")}
             {filterBtn("active", "Active")}
@@ -79,13 +79,30 @@ export default function OrdersPage() {
         }
       />
 
-      {filteredOrders.length === 0 ? (
+      {/* Prompt super admin to pick a restaurant */}
+      {isSuperAdmin && !selectedRestaurantId ? (
         <div className="card text-center py-12">
-          <ShoppingBag className="w-16 h-16 text-black-300 mx-auto mb-4" />
+          <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-black mb-2">
+            Select a restaurant
+          </h3>
+          <p className="text-gray-400">
+            Use the dropdown above to choose a restaurant and view its orders.
+          </p>
+        </div>
+      ) : loading ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <div className="card text-center py-12">
+          <p className="text-red-500 font-medium">{error}</p>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="card text-center py-12">
+          <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-black mb-2">
             No orders found
           </h3>
-          <p className="text-black-400">
+          <p className="text-gray-400">
             Orders will appear here as customers place them
           </p>
         </div>
@@ -113,7 +130,7 @@ export default function OrdersPage() {
                       {order.payment_status.replace("_", " ")}
                     </span>
                   </div>
-                  <div className="text-sm text-black-400 space-y-1">
+                  <div className="text-sm text-gray-400 space-y-1">
                     <p>
                       Customer: {order.customer.name || order.customer.phone}
                     </p>

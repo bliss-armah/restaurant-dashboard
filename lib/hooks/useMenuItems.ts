@@ -2,21 +2,39 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 import type { MenuItem, MenuItemFormData, Category } from "@/lib/types";
 
-export function useMenuItems() {
+export function useMenuItems(restaurantIdOverride?: string) {
+  const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Super admins pass an explicit restaurantIdOverride.
+  // Restaurant admins use their own restaurantId from auth.
+  const restaurantId = restaurantIdOverride ?? user?.restaurantId;
+
   const loadData = useCallback(async () => {
+    if (!restaurantId) {
+      setMenuItems([]);
+      setCategories([]);
+      setLoading(false);
+      return;
+    }
     try {
       const [itemsRes, categoriesRes] = await Promise.all([
         supabase
           .from("menu_items")
-          .select("*, category:category_id(id, name)")
+          .select("*, category:category_id(id, name, restaurant_id)")
+          .eq("category.restaurant_id", restaurantId)
+          .not("category", "is", null)
           .order("sort_order"),
-        supabase.from("menu_categories").select("*").order("sort_order"),
+        supabase
+          .from("menu_categories")
+          .select("*")
+          .eq("restaurant_id", restaurantId)
+          .order("sort_order"),
       ]);
       if (itemsRes.error) throw itemsRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
@@ -27,12 +45,13 @@ export function useMenuItems() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [restaurantId]);
 
   useEffect(() => {
+    setLoading(true);
     loadData();
     const sub = supabase
-      .channel("menu-items-hook")
+      .channel(`menu-items-hook-${restaurantId ?? "none"}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "menu_items" },
@@ -42,7 +61,7 @@ export function useMenuItems() {
     return () => {
       sub.unsubscribe();
     };
-  }, [loadData]);
+  }, [loadData, restaurantId]);
 
   const createMenuItem = useCallback(
     async (data: MenuItemFormData) => {
@@ -100,6 +119,7 @@ export function useMenuItems() {
     menuItems,
     categories,
     loading,
+    restaurantId,
     createMenuItem,
     updateMenuItem,
     toggleItemAvailable,

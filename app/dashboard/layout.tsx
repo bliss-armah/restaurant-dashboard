@@ -158,7 +158,7 @@ export default function DashboardLayout({
             </div>
             <button
               onClick={signOut}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white hover:bg-gray-800 transition-colors"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white hover:bg-gray-800 transition-colors cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
               Logout
