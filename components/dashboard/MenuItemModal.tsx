@@ -1,8 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { MenuItemFormData, Category } from "@/lib/types";
+
+const schema = z.object({
+  name: z.string().min(1, "Item name is required"),
+  description: z.string().optional().default(""),
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
+      message: "Price must be a positive number",
+    }),
+  category_id: z.string().min(1, "Please select a category"),
+  image_url: z
+    .string()
+    .url("Must be a valid URL")
+    .or(z.literal(""))
+    .optional()
+    .default(""),
+  sort_order: z.coerce.number().int().min(0).default(0),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 interface MenuItemModalProps {
   categories: Category[];
@@ -19,8 +54,16 @@ export function MenuItemModal({
   onClose,
   onSubmit,
 }: MenuItemModalProps) {
-  const [formData, setFormData] = useState<MenuItemFormData>(
-    initialData ?? {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: initialData ?? {
       name: "",
       description: "",
       price: "",
@@ -28,121 +71,119 @@ export function MenuItemModal({
       image_url: "",
       sort_order: 0,
     },
-  );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  });
 
-  const set =
-    (field: keyof MenuItemFormData) =>
-    (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >,
-    ) =>
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  const categoryId = watch("category_id");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  const onValid = async (data: FormValues) => {
     try {
-      await onSubmit(formData);
+      await onSubmit(data as MenuItemFormData);
     } catch (err: any) {
-      setError(err.message || "Failed to save menu item");
-    } finally {
-      setLoading(false);
+      setError("root", { message: err.message || "Failed to save menu item" });
     }
   };
 
   return (
     <Modal title={title} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-            {error}
-          </div>
+      <form onSubmit={handleSubmit(onValid)} className="space-y-4">
+        {errors.root && (
+          <p className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-lg">
+            {errors.root.message}
+          </p>
         )}
-        <div>
-          <label className="block text-sm font-medium mb-2">Item Name *</label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={set("name")}
-            className="input"
+
+        <div className="space-y-1.5">
+          <Label htmlFor="item-name">Item Name *</Label>
+          <Input
+            id="item-name"
+            {...register("name")}
             placeholder="e.g., Jollof Rice"
-            required
           />
+          {errors.name && (
+            <p className="text-xs text-destructive">{errors.name.message}</p>
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Category *</label>
-          <select
-            value={formData.category_id}
-            onChange={set("category_id")}
-            className="input"
-            required
+
+        <div className="space-y-1.5">
+          <Label>Category *</Label>
+          <Select
+            value={categoryId}
+            onValueChange={(v) =>
+              setValue("category_id", v, { shouldValidate: true })
+            }
           >
-            <option value="">Select a category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.category_id && (
+            <p className="text-xs text-destructive">
+              {errors.category_id.message}
+            </p>
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Price (GHS) *
-          </label>
-          <input
+
+        <div className="space-y-1.5">
+          <Label htmlFor="item-price">Price (GHS) *</Label>
+          <Input
+            id="item-price"
             type="number"
             step="0.01"
-            value={formData.price}
-            onChange={set("price")}
-            className="input"
+            {...register("price")}
             placeholder="25.00"
-            required
           />
+          {errors.price && (
+            <p className="text-xs text-destructive">{errors.price.message}</p>
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Description (Optional)
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={set("description")}
-            className="input resize-none"
+
+        <div className="space-y-1.5">
+          <Label htmlFor="item-desc">Description (Optional)</Label>
+          <Textarea
+            id="item-desc"
+            {...register("description")}
+            placeholder="Brief description…"
             rows={3}
-            placeholder="Brief description..."
+            className="resize-none"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Image URL (Optional)
-          </label>
-          <input
+
+        <div className="space-y-1.5">
+          <Label htmlFor="item-img">Image URL (Optional)</Label>
+          <Input
+            id="item-img"
             type="url"
-            value={formData.image_url}
-            onChange={set("image_url")}
-            className="input"
-            placeholder="https://..."
+            {...register("image_url")}
+            placeholder="https://…"
           />
+          {errors.image_url && (
+            <p className="text-xs text-destructive">
+              {errors.image_url.message}
+            </p>
+          )}
         </div>
+
         <div className="flex gap-3 pt-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            className="flex-1"
             onClick={onClose}
-            className="btn btn-secondary flex-1"
-            disabled={loading}
+            disabled={isSubmitting}
           >
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary flex-1"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
+          </Button>
+          <Button type="submit" className="flex-1" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+            {isSubmitting ? "Saving…" : "Save"}
+          </Button>
         </div>
       </form>
     </Modal>

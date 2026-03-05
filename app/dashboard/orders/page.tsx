@@ -9,6 +9,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { OrderDetailModal } from "@/components/dashboard/OrderDetailModal";
 import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { Order, OrderFilterKey } from "@/lib/types";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -53,12 +55,13 @@ export default function OrdersPage() {
   };
 
   const filterBtn = (key: OrderFilterKey, label: string) => (
-    <button
+    <Button
       onClick={() => setFilter(key)}
-      className={`btn ${filter === key ? "btn-primary" : "btn-secondary"}`}
+      variant={filter === key ? "default" : "outline"}
+      size="sm"
     >
       {label}
-    </button>
+    </Button>
   );
 
   return (
@@ -121,7 +124,9 @@ export default function OrdersPage() {
                     <h3 className="text-lg font-bold text-black">
                       {order.order_number}
                     </h3>
-                    <span className={`badge ${STATUS_BADGE[order.status]}`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[order.status]}`}
+                    >
                       {order.status}
                     </span>
                     <span

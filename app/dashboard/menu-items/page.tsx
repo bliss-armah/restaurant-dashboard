@@ -9,6 +9,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { MenuItemModal } from "@/components/dashboard/MenuItemModal";
 import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import type { MenuItem } from "@/lib/types";
 
 export default function MenuItemsPage() {
@@ -60,9 +62,9 @@ export default function MenuItemsPage() {
               onChange={setSelectedRestaurantId}
             />
             {canCreate && (
-              <button onClick={openCreate} className="btn btn-primary">
+              <Button onClick={openCreate}>
                 <Plus className="w-5 h-5" /> Add Item
-              </button>
+              </Button>
             )}
           </div>
         }
@@ -90,9 +92,9 @@ export default function MenuItemsPage() {
             Create your first menu item to get started
           </p>
           {canCreate && (
-            <button onClick={openCreate} className="btn btn-primary mx-auto">
+            <Button onClick={openCreate} className="mx-auto">
               <Plus className="w-5 h-5" /> Add Menu Item
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -122,26 +124,29 @@ export default function MenuItemsPage() {
                     )}
                   </td>
                   <td>
-                    <span className="badge badge-info">
+                    <Badge variant="outline">
                       {item.category?.name || "N/A"}
-                    </span>
+                    </Badge>
                   </td>
                   <td className="font-semibold">{formatPrice(item.price)}</td>
                   <td>
-                    <button
+                    <Button
+                      variant={item.is_available ? "default" : "secondary"}
+                      size="sm"
+                      className="rounded-full text-xs h-6 px-3"
                       onClick={() => toggleItemAvailable(item)}
-                      className={`badge ${item.is_available ? "badge-success" : "badge-warning"}`}
                     >
                       {item.is_available ? "Available" : "Unavailable"}
-                    </button>
+                    </Button>
                   </td>
                   <td>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => openEdit(item)}
-                      className="btn btn-ghost p-2"
                     >
                       <Edit2 className="w-4 h-4" />
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}

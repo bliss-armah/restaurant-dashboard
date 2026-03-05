@@ -1,8 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { CategoryFormData } from "@/lib/types";
+
+const schema = z.object({
+  name: z.string().min(1, "Category name is required"),
+  description: z.string().optional(),
+  sort_order: z.number().int().min(0).optional(),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 interface CategoryModalProps {
   initialData?: CategoryFormData;
@@ -17,91 +32,80 @@ export function CategoryModal({
   onClose,
   onSubmit,
 }: CategoryModalProps) {
-  const [formData, setFormData] = useState<CategoryFormData>(
-    initialData ?? { name: "", description: "", sort_order: 0 },
-  );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: initialData ?? { name: "", description: "", sort_order: 0 },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  const onValid = async (data: FormValues) => {
     try {
-      await onSubmit(formData);
+      await onSubmit(data);
     } catch (err: any) {
-      setError(err.message || "Failed to save category");
-    } finally {
-      setLoading(false);
+      setError("root", { message: err.message || "Failed to save category" });
     }
   };
 
   return (
     <Modal title={title} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-            {error}
-          </div>
+      <form onSubmit={handleSubmit(onValid)} className="space-y-4">
+        {errors.root && (
+          <p className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-lg">
+            {errors.root.message}
+          </p>
         )}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Category Name *
-          </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="input"
+
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-name">Category Name *</Label>
+          <Input
+            id="cat-name"
+            {...register("name")}
             placeholder="e.g., Main Dishes"
-            required
           />
+          {errors.name && (
+            <p className="text-xs text-destructive">{errors.name.message}</p>
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Description (Optional)
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            className="input resize-none"
+
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-desc">Description (Optional)</Label>
+          <Textarea
+            id="cat-desc"
+            {...register("description")}
+            placeholder="Brief description…"
             rows={3}
-            placeholder="Brief description..."
+            className="resize-none"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Sort Order</label>
-          <input
+
+        <div className="space-y-1.5">
+          <Label htmlFor="cat-order">Sort Order</Label>
+          <Input
+            id="cat-order"
             type="number"
-            value={formData.sort_order}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                sort_order: parseInt(e.target.value) || 0,
-              })
-            }
-            className="input"
-            min="0"
+            min={0}
+            {...register("sort_order", { valueAsNumber: true })}
           />
         </div>
+
         <div className="flex gap-3 pt-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            className="flex-1"
             onClick={onClose}
-            className="btn btn-secondary flex-1"
-            disabled={loading}
+            disabled={isSubmitting}
           >
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary flex-1"
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
+          </Button>
+          <Button type="submit" className="flex-1" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+            {isSubmitting ? "Saving…" : "Save"}
+          </Button>
         </div>
       </form>
     </Modal>

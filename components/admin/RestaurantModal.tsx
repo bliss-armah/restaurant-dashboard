@@ -1,12 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Restaurant } from "@/lib/types";
 import { type RestaurantFormData } from "@/lib/hooks/useRestaurants";
 
+const schema = z.object({
+  name: z.string().min(1, "Restaurant name is required"),
+  description: z.string().optional(),
+  phone: z.string().min(1, "Phone is required"),
+  email: z.string().optional(),
+  momoNumber: z.string().min(1, "MoMo number is required"),
+  momoName: z.string().min(1, "MoMo name is required"),
+});
+
+type FormValues = z.output<typeof schema>;
+
 interface RestaurantModalProps {
-  restaurant: Restaurant | null; // null = create mode, non-null = edit mode
+  restaurant: Restaurant | null;
   onClose: () => void;
   onSubmit: (data: RestaurantFormData) => Promise<void>;
 }
@@ -18,35 +36,32 @@ export function RestaurantModal({
 }: RestaurantModalProps) {
   const isEditing = restaurant !== null;
 
-  const [formData, setFormData] = useState<RestaurantFormData>({
-    name: restaurant?.name || "",
-    description: restaurant?.description || "",
-    phone: restaurant?.phone || "",
-    email: restaurant?.email || "",
-    momoNumber: restaurant?.momo_number || "",
-    momoName: restaurant?.momo_name || "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: restaurant?.name || "",
+      description: restaurant?.description || "",
+      phone: restaurant?.phone || "",
+      email: restaurant?.email || "",
+      momoNumber: restaurant?.momo_number || "",
+      momoName: restaurant?.momo_name || "",
+    },
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const set =
-    (field: keyof RestaurantFormData) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  const onValid = async (data: FormValues) => {
     try {
-      await onSubmit(formData);
+      await onSubmit(data);
     } catch (err: any) {
-      setError(
-        err.message ||
+      setError("root", {
+        message:
+          err.message ||
           `Failed to ${isEditing ? "update" : "create"} restaurant`,
-      );
-    } finally {
-      setLoading(false);
+      });
     }
   };
 
@@ -55,113 +70,113 @@ export function RestaurantModal({
       title={isEditing ? "Edit Restaurant" : "Add New Restaurant"}
       onClose={onClose}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-            {error}
-          </div>
+      <form onSubmit={handleSubmit(onValid)} className="space-y-5">
+        {errors.root && (
+          <p className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-lg">
+            {errors.root.message}
+          </p>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Restaurant Name *
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={set("name")}
-              className="input"
+          <div className="space-y-1.5">
+            <Label htmlFor="r-name">Restaurant Name *</Label>
+            <Input
+              id="r-name"
+              {...register("name")}
               placeholder="Amazing Restaurant"
-              required
             />
+            {errors.name && (
+              <p className="text-xs text-destructive">{errors.name.message}</p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Phone *</label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="r-phone">Phone *</Label>
+            <Input
+              id="r-phone"
               type="tel"
-              value={formData.phone}
-              onChange={set("phone")}
-              className="input"
+              {...register("phone")}
               placeholder="+233501234567"
-              required
             />
+            {errors.phone && (
+              <p className="text-xs text-destructive">{errors.phone.message}</p>
+            )}
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Description</label>
-          <textarea
-            value={formData.description}
-            onChange={set("description")}
-            className="input"
+        <div className="space-y-1.5">
+          <Label htmlFor="r-desc">Description</Label>
+          <Textarea
+            id="r-desc"
+            {...register("description")}
             rows={3}
-            placeholder="Brief description of the restaurant..."
+            placeholder="Brief description of the restaurant…"
+            className="resize-none"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Email</label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="r-email">Email</Label>
+          <Input
+            id="r-email"
             type="email"
-            value={formData.email}
-            onChange={set("email")}
-            className="input"
+            {...register("email")}
             placeholder="contact@restaurant.com"
           />
+          {errors.email && (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              MoMo Number *
-            </label>
-            <input
+          <div className="space-y-1.5">
+            <Label htmlFor="r-momo">MoMo Number *</Label>
+            <Input
+              id="r-momo"
               type="tel"
-              value={formData.momoNumber}
-              onChange={set("momoNumber")}
-              className="input"
+              {...register("momoNumber")}
               placeholder="0501234567"
-              required
             />
+            {errors.momoNumber && (
+              <p className="text-xs text-destructive">
+                {errors.momoNumber.message}
+              </p>
+            )}
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              MoMo Name *
-            </label>
-            <input
-              type="text"
-              value={formData.momoName}
-              onChange={set("momoName")}
-              className="input"
+          <div className="space-y-1.5">
+            <Label htmlFor="r-momoname">MoMo Name *</Label>
+            <Input
+              id="r-momoname"
+              {...register("momoName")}
               placeholder="John Doe"
-              required
             />
+            {errors.momoName && (
+              <p className="text-xs text-destructive">
+                {errors.momoName.message}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button
+          <Button
             type="button"
+            variant="outline"
+            className="flex-1"
             onClick={onClose}
-            className="btn btn-secondary flex-1"
-            disabled={loading}
+            disabled={isSubmitting}
           >
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary flex-1"
-            disabled={loading}
-          >
-            {loading
+          </Button>
+          <Button type="submit" className="flex-1" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+            {isSubmitting
               ? isEditing
-                ? "Updating..."
-                : "Creating..."
+                ? "Updating…"
+                : "Creating…"
               : isEditing
                 ? "Update Restaurant"
                 : "Create Restaurant"}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

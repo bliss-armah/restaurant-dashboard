@@ -6,9 +6,9 @@ import { Restaurant } from "@/lib/types";
 
 export type RestaurantFormData = {
   name: string;
-  description: string;
+  description?: string;
   phone: string;
-  email: string;
+  email?: string;
   momoNumber: string;
   momoName: string;
 };

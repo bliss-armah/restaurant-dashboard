@@ -71,8 +71,8 @@ export interface Category {
 
 export interface CategoryFormData {
   name: string;
-  description: string;
-  sort_order: number;
+  description?: string;
+  sort_order?: number;
 }
 
 // ---- Menu Item types ----

@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
-import { formatPrice, formatDate } from "@/lib/utils";
 import { Check, X, ChefHat, Package, CircleCheck, Loader2 } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { formatPrice, formatDate } from "@/lib/utils";
 import type { Order } from "@/lib/types";
 
 interface OrderDetailModalProps {
@@ -16,48 +19,46 @@ interface OrderDetailModalProps {
   ) => Promise<void>;
 }
 
-// Status actions available once an order is in a given state.
-// Actions are gated by the current status so the UI auto-hides inapplicable buttons.
 const STATUS_ACTIONS: {
   label: string;
   value: string;
   icon: React.ReactNode;
-  variant: "primary" | "secondary" | "danger";
-  allowedFrom: string[]; // only show when order is in one of these statuses
+  variant: "default" | "outline" | "destructive";
+  allowedFrom: string[];
 }[] = [
   {
     label: "Confirm",
     value: "CONFIRMED",
     icon: <Check className="w-4 h-4" />,
-    variant: "primary",
+    variant: "default",
     allowedFrom: ["PENDING"],
   },
   {
     label: "Preparing",
     value: "PREPARING",
     icon: <ChefHat className="w-4 h-4" />,
-    variant: "secondary",
+    variant: "outline",
     allowedFrom: ["CONFIRMED"],
   },
   {
     label: "Ready",
     value: "READY",
     icon: <Package className="w-4 h-4" />,
-    variant: "secondary",
+    variant: "outline",
     allowedFrom: ["PREPARING"],
   },
   {
     label: "Complete",
     value: "COMPLETED",
     icon: <CircleCheck className="w-4 h-4" />,
-    variant: "primary",
+    variant: "default",
     allowedFrom: ["READY"],
   },
   {
     label: "Reject",
     value: "CANCELLED",
     icon: <X className="w-4 h-4" />,
-    variant: "danger",
+    variant: "destructive",
     allowedFrom: ["PENDING", "CONFIRMED", "PREPARING"],
   },
 ];
@@ -71,7 +72,7 @@ export function OrderDetailModal({
   const [actionError, setActionError] = useState<string | null>(null);
 
   const handleAction = async (status: string, paymentStatus?: string) => {
-    if (pendingAction) return; // prevent double-click
+    if (pendingAction) return;
     setPendingAction(status);
     setActionError(null);
     try {
@@ -90,23 +91,23 @@ export function OrderDetailModal({
   return (
     <Modal title={order.order_number} onClose={onClose}>
       <div className="space-y-6">
-        <p className="text-sm text-gray-500 -mt-2">
+        <p className="text-sm text-muted-foreground -mt-2">
           {formatDate(order.created_at)}
         </p>
 
         {/* Customer */}
-        <div className="p-4 bg-gray-50 rounded-lg">
+        <div className="p-4 bg-muted/50 rounded-lg">
           <h3 className="font-semibold mb-1">Customer</h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             {order.customer.name || "Unknown"} • {order.customer.phone}
           </p>
           {order.delivery_address && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               📍 {order.delivery_address}
             </p>
           )}
           {order.customer_notes && (
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               📝 {order.customer_notes}
             </p>
           )}
@@ -119,11 +120,11 @@ export function OrderDetailModal({
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                className="flex items-center justify-between py-2 border-b last:border-0"
               >
                 <div>
                   <p className="font-medium text-sm">{item.item_name}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     {item.quantity}x @ {formatPrice(item.item_price)}
                   </p>
                 </div>
@@ -135,20 +136,22 @@ export function OrderDetailModal({
           </div>
         </div>
 
+        <Separator />
+
         {/* Total */}
-        <div className="flex items-center justify-between text-lg font-bold pt-2 border-t-2 border-black">
+        <div className="flex items-center justify-between text-lg font-bold">
           <span>Total</span>
           <span>{formatPrice(order.total_amount)}</span>
         </div>
 
         {/* Error feedback */}
         {actionError && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+          <p className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-lg">
             {actionError}
-          </div>
+          </p>
         )}
 
-        {/* Payment pending verification — approve/reject */}
+        {/* Payment pending verification */}
         {order.payment_status === "PENDING_VERIFICATION" &&
           order.status === "PENDING" && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -156,34 +159,37 @@ export function OrderDetailModal({
                 💳 Payment Pending Verification
               </p>
               <p className="text-xs text-yellow-700 mb-3">
-                Customer has claimed payment. Confirm to verify and progress the
-                order, or Reject to cancel it.
+                Customer has claimed payment. Confirm to verify, or Reject to
+                cancel.
               </p>
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={() => handleAction("CONFIRMED")}
                   disabled={!!pendingAction}
-                  className="btn btn-primary flex-1 text-sm"
+                  className="flex-1"
+                  size="sm"
                 >
                   {pendingAction === "CONFIRMED" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
                   ) : (
-                    <Check className="w-4 h-4" />
+                    <Check className="w-4 h-4 mr-1" />
                   )}
                   Confirm &amp; Verify
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleAction("CANCELLED")}
                   disabled={!!pendingAction}
-                  className="btn btn-secondary flex-1 text-sm border-red-300 text-red-600 hover:bg-red-50"
+                  variant="destructive"
+                  className="flex-1"
+                  size="sm"
                 >
                   {pendingAction === "CANCELLED" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
                   ) : (
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 mr-1" />
                   )}
                   Reject
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -198,17 +204,13 @@ export function OrderDetailModal({
               <h3 className="font-semibold mb-3">Update Status</h3>
               <div className="flex flex-wrap gap-2">
                 {availableActions.map((action) => (
-                  <button
+                  <Button
                     key={action.value}
                     onClick={() => handleAction(action.value)}
                     disabled={!!pendingAction}
-                    className={`btn text-sm flex items-center gap-1.5 ${
-                      action.variant === "primary"
-                        ? "btn-primary"
-                        : action.variant === "danger"
-                          ? "btn-secondary border-red-300 text-red-600 hover:bg-red-50"
-                          : "btn-secondary"
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    variant={action.variant}
+                    size="sm"
+                    className="flex items-center gap-1.5"
                   >
                     {pendingAction === action.value ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -216,15 +218,14 @@ export function OrderDetailModal({
                       action.icon
                     )}
                     {action.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
           )}
 
-        {/* Terminal states — nothing more to do */}
         {(order.status === "COMPLETED" || order.status === "CANCELLED") && (
-          <p className="text-sm text-center text-gray-400">
+          <p className="text-sm text-center text-muted-foreground">
             This order is {order.status.toLowerCase()} — no further actions
             available.
           </p>

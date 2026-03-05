@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { CategoryModal } from "@/components/dashboard/CategoryModal";
 import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
+import { Button } from "@/components/ui/button";
 import type { Category } from "@/lib/types";
 
 export default function CategoriesPage() {
@@ -59,9 +60,9 @@ export default function CategoriesPage() {
               onChange={setSelectedRestaurantId}
             />
             {canCreate && (
-              <button onClick={openCreate} className="btn btn-primary">
+              <Button onClick={openCreate}>
                 <Plus className="w-5 h-5" /> Add Category
-              </button>
+              </Button>
             )}
           </div>
         }
@@ -89,9 +90,9 @@ export default function CategoriesPage() {
             Get started by creating your first category
           </p>
           {canCreate && (
-            <button onClick={openCreate} className="btn btn-primary mx-auto">
+            <Button onClick={openCreate} className="mx-auto">
               <Plus className="w-5 h-5" /> Create Category
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -113,23 +114,26 @@ export default function CategoriesPage() {
                     </p>
                   )}
                 </div>
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => openEdit(category)}
-                  className="btn btn-ghost p-2"
                 >
                   <Edit2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
               <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
                 <span className="text-xs text-gray-400">
                   Order: {category.sort_order}
                 </span>
-                <button
+                <Button
+                  variant={category.is_active ? "default" : "secondary"}
+                  size="sm"
+                  className="rounded-full text-xs h-6 px-3"
                   onClick={() => toggleCategoryActive(category)}
-                  className={`badge ${category.is_active ? "badge-success" : "badge-warning"}`}
                 >
                   {category.is_active ? "Active" : "Inactive"}
-                </button>
+                </Button>
               </div>
             </div>
           ))}

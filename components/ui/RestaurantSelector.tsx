@@ -3,6 +3,14 @@
 import { Building2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useRestaurants } from "@/lib/hooks/useRestaurants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface RestaurantSelectorProps {
   value: string;
@@ -10,10 +18,6 @@ interface RestaurantSelectorProps {
   className?: string;
 }
 
-/**
- * A dropdown that lets a SUPER_ADMIN pick which restaurant to view.
- * Renders nothing for regular restaurant admins.
- */
 export function RestaurantSelector({
   value,
   onChange,
@@ -26,22 +30,25 @@ export function RestaurantSelector({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Building2 className="w-4 h-4 text-gray-500 shrink-0" />
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="input py-2 text-sm min-w-[200px]"
+      <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
+      <Select
+        value={value || undefined}
+        onValueChange={onChange}
         disabled={loading}
       >
-        <option value="">
-          {loading ? "Loading restaurants…" : "Select a restaurant…"}
-        </option>
-        {restaurants.map((r) => (
-          <option key={r.id} value={r.id}>
-            {r.name}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-[220px]">
+          <SelectValue
+            placeholder={loading ? "Loading…" : "Select a restaurant…"}
+          />
+        </SelectTrigger>
+        <SelectContent>
+          {restaurants.map((r) => (
+            <SelectItem key={r.id} value={r.id}>
+              {r.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
