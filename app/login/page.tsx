@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, Mail, Phone, Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -157,6 +158,17 @@ export default function LoginPage() {
                 )}
                 {loading ? "Signing in…" : "Sign In"}
               </Button>
+
+              {loginMethod === "email" && (
+                <div className="text-center">
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+              )}
             </form>
           </CardContent>
         </Card>
