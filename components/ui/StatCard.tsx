@@ -14,22 +14,28 @@ export function StatCard({
   label,
   value,
   subLabel,
-  iconBgColor = "bg-black",
+  iconBgColor = "bg-primary/10 text-primary",
 }: StatCardProps) {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex items-center gap-4">
+    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-border/50 bg-card group">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-5">
           <div
-            className={`w-12 h-12 ${iconBgColor} rounded-lg flex items-center justify-center shrink-0`}
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${iconBgColor} group-hover:bg-primary group-hover:text-primary-foreground shadow-sm`}
           >
-            <Icon className="w-6 h-6 text-white" />
+            <Icon className="w-7 h-7" strokeWidth={2} />
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold">{value}</p>
+          <div className="flex flex-col">
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+              {label}
+            </p>
+            <p className="text-3xl font-bold tracking-tight text-foreground">
+              {value}
+            </p>
             {subLabel && (
-              <p className="text-xs text-muted-foreground">{subLabel}</p>
+              <p className="text-sm text-muted-foreground/80 mt-1 flex items-center gap-1.5">
+                {subLabel}
+              </p>
             )}
           </div>
         </div>

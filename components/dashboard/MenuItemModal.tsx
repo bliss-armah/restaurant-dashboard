@@ -20,7 +20,7 @@ import type { MenuItemFormData, Category } from "@/lib/types";
 
 const schema = z.object({
   name: z.string().min(1, "Item name is required"),
-  description: z.string().optional().default(""),
+  description: z.string().optional(),
   price: z
     .string()
     .min(1, "Price is required")
@@ -28,13 +28,8 @@ const schema = z.object({
       message: "Price must be a positive number",
     }),
   category_id: z.string().min(1, "Please select a category"),
-  image_url: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .optional()
-    .default(""),
-  sort_order: z.coerce.number().int().min(0).default(0),
+  image_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  sort_order: z.number().int().min(0).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;

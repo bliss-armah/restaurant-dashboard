@@ -1,5 +1,9 @@
 import { Settings, Store, Phone, CreditCard } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function SettingsPage() {
   return (
@@ -10,144 +14,174 @@ export default function SettingsPage() {
       />
 
       {/* Settings Sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
         {/* Restaurant Info */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-              <Store className="w-5 h-5 text-white" />
+        <Card className="border-border/60 shadow-sm bg-card transition-shadow hover:shadow-md">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                <Store className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle className="text-xl font-bold text-foreground">
+                Restaurant Information
+              </CardTitle>
             </div>
-            <h2 className="text-xl font-bold text-black">
-              Restaurant Information
-            </h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Restaurant Name
-              </label>
-              <input
-                type="text"
-                className="input"
-                placeholder="My Restaurant"
-                defaultValue="Restaurant Name"
-              />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  Restaurant Name
+                </label>
+                <Input
+                  type="text"
+                  placeholder="My Restaurant"
+                  defaultValue="Restaurant Name"
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  Description
+                </label>
+                <Textarea
+                  className="resize-none bg-background"
+                  rows={3}
+                  placeholder="Brief description..."
+                  defaultValue="Best food in town"
+                />
+              </div>
+              <Button className="w-full mt-2 font-semibold">
+                Save Changes
+              </Button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Description
-              </label>
-              <textarea
-                className="input resize-none"
-                rows={3}
-                placeholder="Brief description..."
-                defaultValue="Best food in town"
-              />
-            </div>
-            <button className="btn btn-primary w-full">Save Changes</button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* WhatsApp Configuration */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-              <Phone className="w-5 h-5 text-white" />
+        <Card className="border-border/60 shadow-sm bg-card transition-shadow hover:shadow-md">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                <Phone className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle className="text-xl font-bold text-foreground">
+                WhatsApp Settings
+              </CardTitle>
             </div>
-            <h2 className="text-xl font-bold text-black">WhatsApp Settings</h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                WhatsApp Number
-              </label>
-              <input
-                type="tel"
-                className="input"
-                placeholder="+233 24 123 4567"
-                defaultValue="+233 24 123 4567"
-                disabled
-              />
-              <p className="text-xs text-black-400 mt-1">
-                Contact support to change this number
-              </p>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  WhatsApp Number
+                </label>
+                <Input
+                  type="tel"
+                  placeholder="+233 24 123 4567"
+                  defaultValue="+233 24 123 4567"
+                  disabled
+                  className="bg-muted/50"
+                />
+                <p className="text-xs text-muted-foreground mt-1.5 font-medium">
+                  Contact support to change this number
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  Business Account ID
+                </label>
+                <Input
+                  type="text"
+                  placeholder="WhatsApp Business Account ID"
+                  disabled
+                  className="bg-muted/50"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Business Account ID
-              </label>
-              <input
-                type="text"
-                className="input"
-                placeholder="WhatsApp Business Account ID"
-                disabled
-              />
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* MoMo Payment Configuration */}
-        <div className="card lg:col-span-2">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-white" />
+        <Card className="border-border/60 shadow-sm bg-card transition-shadow hover:shadow-md lg:col-span-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle className="text-xl font-bold text-foreground">
+                MoMo Payment Details
+              </CardTitle>
             </div>
-            <h2 className="text-xl font-bold text-black">
-              MoMo Payment Details
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                MoMo Number
-              </label>
-              <input
-                type="tel"
-                className="input"
-                placeholder="+233 24 123 4567"
-                defaultValue="+233 24 123 4567"
-              />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  MoMo Number
+                </label>
+                <Input
+                  type="tel"
+                  placeholder="+233 24 123 4567"
+                  defaultValue="+233 24 123 4567"
+                  className="bg-background"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground">
+                  Account Name
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Business Name"
+                  defaultValue="Restaurant Name"
+                  className="bg-background"
+                />
+              </div>
+              <div className="md:col-span-2 mt-2">
+                <Button className="w-full md:w-auto font-semibold">
+                  Update Payment Details
+                </Button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Account Name
-              </label>
-              <input
-                type="text"
-                className="input"
-                placeholder="Business Name"
-                defaultValue="Restaurant Name"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <button className="btn btn-primary">
-                Update Payment Details
-              </button>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* System Info */}
-      <div className="card">
-        <h2 className="text-xl font-bold text-black mb-4">
-          System Information
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div>
-            <p className="text-black-400">Version</p>
-            <p className="font-semibold text-black">1.0.0</p>
+      <Card className="border-border/60 shadow-sm bg-muted/20 pb-4">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-bold text-foreground">
+            System Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+            <div>
+              <p className="text-muted-foreground font-medium mb-1">Version</p>
+              <p className="font-semibold text-foreground text-base">1.0.0</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground font-medium mb-1">
+                Last Updated
+              </p>
+              <p className="font-semibold text-foreground text-base">
+                Feb 19, 2026
+              </p>
+            </div>
+            <div>
+              <p className="text-muted-foreground font-medium mb-1">Status</p>
+              <p className="font-semibold text-green-600 text-base flex items-center gap-2">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                Active
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-black-400">Last Updated</p>
-            <p className="font-semibold text-black">Feb 19, 2026</p>
-          </div>
-          <div>
-            <p className="text-black-400">Status</p>
-            <p className="font-semibold text-black">Active</p>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

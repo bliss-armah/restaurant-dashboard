@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { UserTable } from "@/components/admin/UserTable";
 import { UserModal } from "@/components/admin/UserModal";
 import { EditRoleModal } from "@/components/admin/EditRoleModal";
+import { Button } from "@/components/ui/button";
 import { User } from "@/lib/types";
 
 export default function SuperAdminUsersPage() {
@@ -34,13 +35,13 @@ export default function SuperAdminUsersPage() {
         title="User Management"
         subtitle="Manage restaurant admins and super admins"
         action={
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
+            className="font-semibold shadow-md hover:shadow-lg transition-all"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 mr-2" />
             Add User
-          </button>
+          </Button>
         }
       />
 
@@ -61,7 +62,12 @@ export default function SuperAdminUsersPage() {
           restaurants={restaurants}
           onClose={() => setShowCreateModal(false)}
           onSubmit={async (data) => {
-            await createUser(data);
+            await createUser({
+              ...data,
+              email: data.email || "",
+              phone: data.phone || "",
+              restaurantId: data.restaurantId || "",
+            });
             setShowCreateModal(false);
           }}
         />

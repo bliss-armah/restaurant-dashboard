@@ -9,6 +9,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RestaurantTable } from "@/components/admin/RestaurantTable";
 import { RestaurantModal } from "@/components/admin/RestaurantModal";
+import { Button } from "@/components/ui/button";
 import { type Restaurant } from "@/lib/types";
 
 export default function SuperAdminRestaurantsPage() {
@@ -58,13 +59,13 @@ export default function SuperAdminRestaurantsPage() {
         title="Restaurants"
         subtitle="Manage all restaurants on the platform"
         action={
-          <button
+          <Button
             onClick={() => setShowModal(true)}
-            className="btn btn-primary"
+            className="font-semibold shadow-md hover:shadow-lg transition-all"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 mr-2" />
             Add Restaurant
-          </button>
+          </Button>
         }
       />
 

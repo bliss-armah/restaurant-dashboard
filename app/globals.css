@@ -11,25 +11,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background-color: #f7f7f7;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #a4a4a4;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #818181;
-}
-
 /* Animation utilities — still used in page components */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
@@ -72,6 +53,20 @@ body {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+@theme {
+  --color-black-50: #f7f7f7;
+  --color-black-100: #e3e3e3;
+  --color-black-200: #c8c8c8;
+  --color-black-300: #a4a4a4;
+  --color-black-400: #818181;
+  --color-black-500: #666666;
+  --color-black-600: #515151;
+  --color-black-700: #434343;
+  --color-black-800: #383838;
+  --color-black-900: #1a1a1a;
+  --color-black-950: #0a0a0a;
 }
 
 @theme inline {

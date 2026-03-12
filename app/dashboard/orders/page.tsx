@@ -11,21 +11,27 @@ import { OrderDetailModal } from "@/components/dashboard/OrderDetailModal";
 import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Order, OrderFilterKey } from "@/lib/types";
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING: "badge-warning",
-  CONFIRMED: "badge-info",
-  PREPARING: "badge-info",
-  READY: "badge-success",
-  COMPLETED: "badge-success",
-  CANCELLED: "badge-danger",
+  PENDING:
+    "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200",
+  CONFIRMED: "bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200",
+  PREPARING:
+    "bg-purple-100 text-purple-800 hover:bg-purple-200 border-purple-200",
+  READY:
+    "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200",
+  COMPLETED: "bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200",
+  CANCELLED: "bg-red-100 text-red-800 hover:bg-red-200 border-red-200",
 };
 const PAYMENT_BADGE: Record<string, string> = {
-  UNPAID: "badge-danger",
-  PENDING_VERIFICATION: "badge-warning",
-  VERIFIED: "badge-success",
-  FAILED: "badge-danger",
+  UNPAID: "bg-red-100 text-red-800 hover:bg-red-200 border-red-200",
+  PENDING_VERIFICATION:
+    "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200",
+  VERIFIED:
+    "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200",
+  FAILED: "bg-red-100 text-red-800 hover:bg-red-200 border-red-200",
 };
 
 export default function OrdersPage() {
@@ -84,70 +90,97 @@ export default function OrdersPage() {
 
       {/* Prompt super admin to pick a restaurant */}
       {isSuperAdmin && !selectedRestaurantId ? (
-        <div className="card text-center py-12">
-          <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-black mb-2">
-            Select a restaurant
-          </h3>
-          <p className="text-gray-400">
-            Use the dropdown above to choose a restaurant and view its orders.
-          </p>
-        </div>
+        <Card className="border-dashed bg-muted/30 shadow-none">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-6">
+              <ShoppingBag className="w-10 h-10 text-primary/40" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">
+              Select a restaurant
+            </h3>
+            <p className="text-muted-foreground max-w-sm">
+              Use the dropdown above to choose a restaurant and view its orders.
+            </p>
+          </CardContent>
+        </Card>
       ) : loading ? (
         <LoadingSpinner />
       ) : error ? (
-        <div className="card text-center py-12">
-          <p className="text-red-500 font-medium">{error}</p>
-        </div>
+        <Card className="border-destructive/20 bg-destructive/5 shadow-none">
+          <CardContent className="py-8 text-center text-destructive font-medium">
+            {error}
+          </CardContent>
+        </Card>
       ) : filteredOrders.length === 0 ? (
-        <div className="card text-center py-12">
-          <ShoppingBag className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-black mb-2">
-            No orders found
-          </h3>
-          <p className="text-gray-400">
-            Orders will appear here as customers place them
-          </p>
-        </div>
+        <Card className="border-dashed bg-muted/30 shadow-none">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-6">
+              <ShoppingBag className="w-10 h-10 text-primary/40" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">
+              No orders found
+            </h3>
+            <p className="text-muted-foreground">
+              Orders will appear here as customers place them
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-4">
           {filteredOrders.map((order, index) => (
-            <div
+            <Card
               key={order.id}
-              className="card cursor-pointer hover:shadow-xl transition-all animate-slide-up"
+              className="group cursor-pointer hover:shadow-lg transition-all hover:border-primary/30 border-border/60 bg-card overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300"
               style={{ animationDelay: `${index * 50}ms` }}
               onClick={() => setSelectedOrder(order)}
             >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <CardContent className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-bold text-black">
+                  <div className="flex flex-wrap items-center gap-3 mb-3">
+                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                       {order.order_number}
                     </h3>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[order.status]}`}
+                    <Badge
+                      variant="outline"
+                      className={`font-semibold border ${STATUS_BADGE[order.status]}`}
                     >
                       {order.status}
-                    </span>
-                    <span
-                      className={`badge ${PAYMENT_BADGE[order.payment_status]}`}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={`font-semibold border ${PAYMENT_BADGE[order.payment_status]}`}
                     >
                       {order.payment_status.replace("_", " ")}
-                    </span>
+                    </Badge>
                   </div>
-                  <div className="text-sm text-gray-400 space-y-1">
-                    <p>
-                      Customer: {order.customer.name || order.customer.phone}
-                    </p>
-                    <p>Items: {order.items.length}</p>
-                    <p>Date: {formatDate(order.created_at)}</p>
+                  <div className="flex flex-wrap text-sm text-muted-foreground gap-x-6 gap-y-2 font-medium">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>
+                      Customer:{" "}
+                      <span className="text-foreground">
+                        {order.customer.name || order.customer.phone}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>
+                      Items:{" "}
+                      <span className="text-foreground">
+                        {order.items.length}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>
+                      {formatDate(order.created_at)}
+                    </div>
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-black">
-                  {formatPrice(order.total_amount)}
-                </p>
-              </div>
-            </div>
+                <div className="flex items-center gap-6 mt-2 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-border/50">
+                  <p className="text-2xl font-extrabold text-foreground tracking-tight">
+                    {formatPrice(order.total_amount)}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
