@@ -29,9 +29,10 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
+  signingOut: boolean;
   isSuperAdmin: boolean;
   isRestaurantAdmin: boolean;
-  signOut: () => Promise<void>;
+  signOut: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -41,9 +42,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  signingOut: false,
   isSuperAdmin: false,
   isRestaurantAdmin: false,
-  signOut: async () => {},
+  signOut: () => {},
 });
 
 
@@ -74,6 +76,7 @@ async function fetchUserRole(
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signingOut, setSigningOut] = useState(false);
   const router = useRouter();
 
   /**
@@ -116,10 +119,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        await resolveUser(session.user);
-      } else {
+      if (_event === "SIGNED_OUT") {
         setUser(null);
+        setSigningOut(false);
+        router.push("/login");
+      } else if (session?.user) {
+        await resolveUser(session.user);
       }
     });
 
@@ -128,8 +133,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [resolveUser]);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
+  const signOut = () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    // Clear all local storage so stale session data can't persist
+    localStorage.clear();
+    // Fire-and-forget — don't await so a stale/hanging network request
+    // doesn't block the redirect after idle tabs.
+    supabase.auth.signOut().catch((err) =>
+      console.error("[auth-context] signOut error:", err),
+    );
+    setUser(null);
+    setSigningOut(false);
     router.push("/login");
   };
 
@@ -138,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         loading,
+        signingOut,
         isSuperAdmin: user?.role === "SUPER_ADMIN",
         isRestaurantAdmin: user?.role === "RESTAURANT_ADMIN",
         signOut,

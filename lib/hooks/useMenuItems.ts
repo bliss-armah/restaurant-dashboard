@@ -58,8 +58,15 @@ export function useMenuItems(restaurantIdOverride?: string) {
         loadData,
       )
       .subscribe();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") loadData();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       sub.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [loadData, restaurantId]);
 

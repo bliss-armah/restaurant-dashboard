@@ -47,8 +47,15 @@ export function useCategories(restaurantIdOverride?: string) {
         loadCategories,
       )
       .subscribe();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") loadCategories();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       sub.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [loadCategories, restaurantId]);
 

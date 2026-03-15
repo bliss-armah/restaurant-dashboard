@@ -64,8 +64,14 @@ export function useOrders(restaurantId?: string) {
       )
       .subscribe();
 
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") loadOrders();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       sub.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [loadOrders, restaurantId]);
 

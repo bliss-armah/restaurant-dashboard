@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, Mail, Phone, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -15,6 +15,13 @@ type LoginMethod = "email" | "phone";
 export default function LoginPage() {
   const router = useRouter();
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
+
+  // Redirect already-authenticated users straight to the dashboard
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) router.replace("/dashboard");
+    });
+  }, [router]);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

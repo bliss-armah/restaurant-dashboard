@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -42,10 +42,25 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, isSuperAdmin, signOut } = useAuth();
+  const { user, loading, isSuperAdmin, signOut, signingOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login");
+    }
+  }, [loading, user, router]);
 
   const navigation = isSuperAdmin ? superAdminNavigation : restaurantNavigation;
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -158,10 +173,11 @@ export default function DashboardLayout({
             </div>
             <button
               onClick={signOut}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white hover:bg-gray-800 transition-colors cursor-pointer"
+              disabled={signingOut}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
-              Logout
+              {signingOut ? "Signing out…" : "Logout"}
             </button>
           </div>
         </div>

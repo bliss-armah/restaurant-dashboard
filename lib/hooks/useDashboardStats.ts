@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { DashboardStats } from "@/lib/types";
 
@@ -8,12 +8,7 @@ export function useDashboardStats(enabled: boolean) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!enabled) return;
-    loadStats();
-  }, [enabled]);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     setLoading(true);
     try {
       const [
@@ -54,7 +49,18 @@ export function useDashboardStats(enabled: boolean) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+    loadStats();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") loadStats();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [enabled, loadStats]);
 
   return { stats, loading };
 }

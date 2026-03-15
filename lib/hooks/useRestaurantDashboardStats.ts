@@ -102,8 +102,14 @@ export function useRestaurantDashboardStats(restaurantId: string | undefined) {
       )
       .subscribe();
 
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       sub?.unsubscribe();
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [restaurantId]);
 
