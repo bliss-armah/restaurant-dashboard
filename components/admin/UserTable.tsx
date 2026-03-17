@@ -87,12 +87,12 @@ export function UserTable({ users, onEditRole }: UserTableProps) {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={user.is_active ? "default" : "secondary"}>
-                    {user.is_active ? "Active" : "Inactive"}
+                  <Badge variant={user.isActive ? "default" : "secondary"}>
+                    {user.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {new Date(user.created_at).toLocaleDateString()}
+                  {new Date(user.createdAt).toLocaleDateString()}
                 </TableCell>
                 {onEditRole && (
                   <TableCell>

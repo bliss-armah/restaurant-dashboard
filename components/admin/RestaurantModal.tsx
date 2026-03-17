@@ -48,8 +48,8 @@ export function RestaurantModal({
       description: restaurant?.description || "",
       phone: restaurant?.phone || "",
       email: restaurant?.email || "",
-      momoNumber: restaurant?.momo_number || "",
-      momoName: restaurant?.momo_name || "",
+      momoNumber: restaurant?.momoNumber || "",
+      momoName: restaurant?.momoName || "",
     },
   });
 

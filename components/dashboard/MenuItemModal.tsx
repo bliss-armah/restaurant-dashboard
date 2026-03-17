@@ -27,9 +27,9 @@ const schema = z.object({
     .refine((v) => !isNaN(parseFloat(v)) && parseFloat(v) > 0, {
       message: "Price must be a positive number",
     }),
-  category_id: z.string().min(1, "Please select a category"),
-  image_url: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
-  sort_order: z.number().int().min(0).optional(),
+  categoryId: z.string().min(1, "Please select a category"),
+  imageUrl: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  sortOrder: z.number().int().min(0).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -62,13 +62,13 @@ export function MenuItemModal({
       name: "",
       description: "",
       price: "",
-      category_id: categories[0]?.id || "",
-      image_url: "",
-      sort_order: 0,
+      categoryId: categories[0]?.id || "",
+      imageUrl: "",
+      sortOrder: 0,
     },
   });
 
-  const categoryId = watch("category_id");
+  const categoryId = watch("categoryId");
 
   const onValid = async (data: FormValues) => {
     try {
@@ -104,7 +104,7 @@ export function MenuItemModal({
           <Select
             value={categoryId}
             onValueChange={(v) =>
-              setValue("category_id", v, { shouldValidate: true })
+              setValue("categoryId", v, { shouldValidate: true })
             }
           >
             <SelectTrigger>
@@ -118,9 +118,9 @@ export function MenuItemModal({
               ))}
             </SelectContent>
           </Select>
-          {errors.category_id && (
+          {errors.categoryId && (
             <p className="text-xs text-destructive">
-              {errors.category_id.message}
+              {errors.categoryId.message}
             </p>
           )}
         </div>
@@ -155,12 +155,12 @@ export function MenuItemModal({
           <Input
             id="item-img"
             type="url"
-            {...register("image_url")}
+            {...register("imageUrl")}
             placeholder="https://…"
           />
-          {errors.image_url && (
+          {errors.imageUrl && (
             <p className="text-xs text-destructive">
-              {errors.image_url.message}
+              {errors.imageUrl.message}
             </p>
           )}
         </div>

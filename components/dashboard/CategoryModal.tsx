@@ -14,7 +14,7 @@ import type { CategoryFormData } from "@/lib/types";
 const schema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
-  sort_order: z.number().int().min(0).optional(),
+  sortOrder: z.number().int().min(0).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -39,7 +39,7 @@ export function CategoryModal({
     setError,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: initialData ?? { name: "", description: "", sort_order: 0 },
+    defaultValues: initialData ?? { name: "", description: "", sortOrder: 0 },
   });
 
   const onValid = async (data: FormValues) => {
@@ -88,7 +88,7 @@ export function CategoryModal({
             id="cat-order"
             type="number"
             min={0}
-            {...register("sort_order", { valueAsNumber: true })}
+            {...register("sortOrder", { valueAsNumber: true })}
           />
         </div>
 

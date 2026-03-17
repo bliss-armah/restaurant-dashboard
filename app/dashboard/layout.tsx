@@ -44,7 +44,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, loading, isSuperAdmin, signOut, signingOut } = useAuth();
+  const { user, loading, isSuperAdmin, signOut } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -173,11 +173,10 @@ export default function DashboardLayout({
             </div>
             <button
               onClick={signOut}
-              disabled={signingOut}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-white hover:bg-gray-800 transition-colors cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
-              {signingOut ? "Signing out…" : "Logout"}
+              Logout
             </button>
           </div>
         </div>
@@ -205,7 +204,7 @@ export default function DashboardLayout({
                 <p className="text-sm font-medium text-black">
                   {user?.name || user?.email || user?.phone}
                 </p>
-                <p className="text-xs text-gray-600">Supabase Auth</p>
+                <p className="text-xs text-gray-600">{user?.role === "SUPER_ADMIN" ? "Super Admin" : "Restaurant Admin"}</p>
               </div>
               <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-bold">
                 {(user?.name || user?.email || "A").charAt(0).toUpperCase()}

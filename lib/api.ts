@@ -1,20 +1,16 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4050";
+
+// ============================================
+// HTTP CLIENT
+// ============================================
 
 /**
- * API client using Next.js built-in fetch with revalidation support
+ * Make an authenticated request to the Express backend.
+ * Token is read from localStorage on every call so it's always fresh.
  */
-
-interface FetchOptions extends RequestInit {
-  revalidate?: number | false;
-  tags?: string[];
-}
-
-/**
- * Make authenticated API request
- */
-async function apiRequest<T>(
+export async function apiRequest<T>(
   endpoint: string,
-  options: FetchOptions = {},
+  options: RequestInit = {},
 ): Promise<T> {
   const token = getToken();
 
@@ -24,192 +20,198 @@ async function apiRequest<T>(
     ...options.headers,
   };
 
-  const res = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-    next: {
-      ...(options.revalidate !== undefined && {
-        revalidate: options.revalidate,
-      }),
-      ...(options.tags && { tags: options.tags }),
-    },
-  });
+  const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
 
   if (!res.ok) {
-    if (res.status === 401) {
-      // Unauthorized - clear token and redirect to login
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-      }
+    if (res.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
-    const error = await res.json().catch(() => ({ message: "Request failed" }));
-    throw new Error(error.message || `HTTP ${res.status}`);
+    const error = await res.json().catch(() => ({ error: "Request failed" }));
+    throw new Error(error.error || error.message || `HTTP ${res.status}`);
   }
 
   return res.json();
 }
 
-/**
- * Get stored auth token
- */
+// ============================================
+// TOKEN HELPERS
+// ============================================
+
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("token");
 }
 
-/**
- * Set auth token
- */
 export function setToken(token: string): void {
   localStorage.setItem("token", token);
 }
 
-/**
- * Remove auth token
- */
 export function clearToken(): void {
   localStorage.removeItem("token");
 }
 
-/**
- * Check if user is authenticated
- */
 export function isAuthenticated(): boolean {
   return !!getToken();
 }
 
 // ============================================
-// AUTH API
+// AUTH
 // ============================================
 
-export async function login(email: string, password: string) {
-  const res = await fetch(`${API_URL}/api/auth/login`, {
+export async function login(identifier: string, password: string) {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ identifier, password }),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: "Login failed" }));
-    throw new Error(error.message || "Invalid credentials");
-  }
+  const body = await res.json().catch(() => ({ error: "Login failed" }));
+  if (!res.ok) throw new Error(body.error || "Invalid credentials");
+  return body.data as { token: string; user: AuthUser };
+}
 
-  return res.json();
+export async function getMe() {
+  return apiRequest<{ success: boolean; data: AuthUser }>("/auth/me");
 }
 
 // ============================================
-// CATEGORIES API
+// RESTAURANTS
 // ============================================
 
-export async function getCategories() {
-  return apiRequest<{ success: boolean; data: any[] }>("/api/categories", {
-    tags: ["categories"],
-    revalidate: 30,
+export async function getRestaurants() {
+  return apiRequest<{ success: boolean; data: any[] }>("/restaurants");
+}
+
+export async function getMyRestaurant() {
+  return apiRequest<{ success: boolean; data: any }>("/restaurants/me");
+}
+
+export async function createRestaurant(data: Record<string, any>) {
+  return apiRequest("/restaurants", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateRestaurant(id: string, data: Record<string, any>) {
+  return apiRequest(`/restaurants/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function setRestaurantOpenStatus(id: string, isOpen: boolean) {
+  return apiRequest(`/restaurants/${id}/open-status`, {
+    method: "PATCH",
+    body: JSON.stringify({ isOpen }),
   });
 }
 
-export async function createCategory(data: {
-  name: string;
-  description?: string;
-  sortOrder?: number;
-}) {
-  return apiRequest("/api/categories", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+// ============================================
+// CATEGORIES
+// ============================================
+
+export async function getCategories(restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest<{ success: boolean; data: any[] }>(`/categories${q}`);
 }
 
-export async function updateCategory(
-  id: string,
-  data: {
-    name?: string;
-    description?: string;
-    sortOrder?: number;
-    isActive?: boolean;
-  },
-) {
-  return apiRequest(`/api/categories/${id}`, {
+export async function createCategory(data: Record<string, any>, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/categories${q}`, { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateCategory(id: string, data: Record<string, any>, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/categories/${id}${q}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function toggleCategoryActive(id: string, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/categories/${id}/toggle${q}`, { method: "PATCH" });
+}
+
+export async function deleteCategory(id: string, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/categories/${id}${q}`, { method: "DELETE" });
+}
+
+// ============================================
+// MENU ITEMS
+// ============================================
+
+export async function getMenuItems(restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest<{ success: boolean; data: any[] }>(`/menu-items${q}`);
+}
+
+export async function createMenuItem(data: Record<string, any>, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/menu-items${q}`, { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateMenuItem(id: string, data: Record<string, any>, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/menu-items/${id}${q}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function toggleMenuItemAvailable(id: string, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/menu-items/${id}/toggle${q}`, { method: "PATCH" });
+}
+
+export async function deleteMenuItem(id: string, restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest(`/menu-items/${id}${q}`, { method: "DELETE" });
+}
+
+// ============================================
+// ORDERS
+// ============================================
+
+export async function getOrders(restaurantId?: string) {
+  const q = restaurantId ? `?restaurantId=${restaurantId}` : "";
+  return apiRequest<{ success: boolean; data: any[] }>(`/orders${q}`);
+}
+
+export async function updateOrderStatus(id: string, data: { status?: string; paymentStatus?: string }) {
+  return apiRequest(`/orders/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
 }
 
 // ============================================
-// MENU ITEMS API
+// STATS
 // ============================================
 
-export async function getMenuItems() {
-  return apiRequest<{ success: boolean; data: any[] }>("/api/menu-items", {
-    tags: ["menu-items"],
-    revalidate: 30,
-  });
+export async function getStats() {
+  return apiRequest<{ success: boolean; data: any }>("/stats");
 }
 
-export async function createMenuItem(data: {
-  name: string;
-  description?: string;
-  price: number;
-  categoryId: string;
-  imageUrl?: string;
-  sortOrder?: number;
-}) {
-  return apiRequest("/api/menu-items", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+// ============================================
+// ADMIN
+// ============================================
+
+export async function adminCreateUser(data: Record<string, any>) {
+  return apiRequest("/admin/users", { method: "POST", body: JSON.stringify(data) });
 }
 
-export async function updateMenuItem(
-  id: string,
-  data: {
-    name?: string;
-    description?: string;
-    price?: number;
-    categoryId?: string;
-    imageUrl?: string;
-    isAvailable?: boolean;
-    sortOrder?: number;
-  },
-) {
-  return apiRequest(`/api/menu-items/${id}`, {
+export async function adminListUsers() {
+  return apiRequest<{ success: boolean; data: any[] }>("/admin/users");
+}
+
+export async function adminUpdateUserRole(userId: string, role: string, restaurantId?: string) {
+  return apiRequest(`/admin/users/${userId}/role`, {
     method: "PATCH",
-    body: JSON.stringify(data),
+    body: JSON.stringify({ role, restaurantId }),
   });
 }
 
 // ============================================
-// ORDERS API
+// SHARED TYPES
 // ============================================
 
-export async function getOrders(filters?: {
-  status?: string;
-  paymentStatus?: string;
-}) {
-  const params = new URLSearchParams();
-  if (filters?.status) params.append("status", filters.status);
-  if (filters?.paymentStatus)
-    params.append("paymentStatus", filters.paymentStatus);
-
-  const query = params.toString();
-  return apiRequest<{ success: boolean; data: any[] }>(
-    `/api/orders${query ? `?${query}` : ""}`,
-    {
-      tags: ["orders"],
-      revalidate: 10, // Revalidate every 10 seconds for orders
-    },
-  );
-}
-
-export async function updateOrderStatus(
-  id: string,
-  data: {
-    status?: string;
-    paymentStatus?: string;
-  },
-) {
-  return apiRequest(`/api/orders/${id}/status`, {
-    method: "PATCH",
-    body: JSON.stringify(data),
-  });
+export interface AuthUser {
+  id: string;
+  name?: string;
+  email?: string | null;
+  phone?: string | null;
+  role: "SUPER_ADMIN" | "RESTAURANT_ADMIN";
+  restaurantId?: string | null;
 }

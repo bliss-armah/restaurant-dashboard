@@ -167,12 +167,12 @@ export default function MenuItemsPage() {
                       </TableCell>
                       <TableCell className="px-6 py-4">
                         <Button
-                          variant={item.is_available ? "default" : "secondary"}
+                          variant={item.isAvailable ? "default" : "secondary"}
                           size="sm"
-                          className={`rounded-full text-xs h-7 px-4 font-semibold shadow-none ${item.is_available ? "bg-green-500 hover:bg-green-600 text-white" : ""}`}
+                          className={`rounded-full text-xs h-7 px-4 font-semibold shadow-none ${item.isAvailable ? "bg-green-500 hover:bg-green-600 text-white" : ""}`}
                           onClick={() => toggleItemAvailable(item)}
                         >
-                          {item.is_available ? "Available" : "Unavailable"}
+                          {item.isAvailable ? "Available" : "Unavailable"}
                         </Button>
                       </TableCell>
                       <TableCell className="px-6 py-4 text-right">
@@ -204,9 +204,9 @@ export default function MenuItemsPage() {
                   name: editingItem.name,
                   description: editingItem.description || "",
                   price: editingItem.price.toString(),
-                  category_id: editingItem.category_id,
-                  image_url: editingItem.image_url || "",
-                  sort_order: editingItem.sort_order,
+                  categoryId: editingItem.categoryId,
+                  imageUrl: editingItem.imageUrl || "",
+                  sortOrder: editingItem.sortOrder,
                 }
               : undefined
           }

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogIn, Mail, Phone, Eye, EyeOff, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { login, setToken, getToken } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,19 +14,18 @@ type LoginMethod = "email" | "phone";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
-
-  // Redirect already-authenticated users straight to the dashboard
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace("/dashboard");
-    });
-  }, [router]);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect already-authenticated users
+  useEffect(() => {
+    if (getToken()) router.replace("/dashboard");
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,22 +33,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      let result;
-      if (loginMethod === "email") {
-        result = await supabase.auth.signInWithPassword({
-          email: identifier,
-          password,
-        });
-      } else {
-        result = await supabase.auth.signInWithPassword({
-          phone: identifier,
-          password,
-        });
-      }
-
-      if (result.error) throw result.error;
+      const { token } = await login(identifier, password);
+      setToken(token);
+      await refreshUser();
       router.push("/dashboard");
-      router.refresh();
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {
@@ -60,7 +47,6 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-fade-in">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-4">
             <LogIn className="w-8 h-8 text-primary-foreground" />
@@ -70,17 +56,12 @@ export default function LoginPage() {
 
         <Card>
           <CardContent className="pt-6 space-y-6">
-            {/* Login method toggle */}
             <div className="flex gap-2">
               <Button
                 type="button"
                 variant={loginMethod === "email" ? "default" : "secondary"}
                 className="flex-1"
-                onClick={() => {
-                  setLoginMethod("email");
-                  setIdentifier("");
-                  setError("");
-                }}
+                onClick={() => { setLoginMethod("email"); setIdentifier(""); setError(""); }}
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Email
@@ -89,11 +70,7 @@ export default function LoginPage() {
                 type="button"
                 variant={loginMethod === "phone" ? "default" : "secondary"}
                 className="flex-1"
-                onClick={() => {
-                  setLoginMethod("phone");
-                  setIdentifier("");
-                  setError("");
-                }}
+                onClick={() => { setLoginMethod("phone"); setIdentifier(""); setError(""); }}
               >
                 <Phone className="w-4 h-4 mr-2" />
                 Phone
@@ -116,17 +93,13 @@ export default function LoginPage() {
                   type={loginMethod === "email" ? "email" : "tel"}
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder={
-                    loginMethod === "email"
-                      ? "admin@restaurant.com"
-                      : "+233123456789"
-                  }
+                  placeholder={loginMethod === "email" ? "admin@restaurant.com" : "+233123456789"}
                   required
                   autoFocus
                 />
                 {loginMethod === "phone" && (
                   <p className="text-xs text-muted-foreground">
-                    📱 Include country code (e.g., +233 for Ghana, +1 for USA)
+                    Include country code (e.g., +233 for Ghana)
                   </p>
                 )}
               </div>
@@ -148,11 +121,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
@@ -165,17 +134,6 @@ export default function LoginPage() {
                 )}
                 {loading ? "Signing in…" : "Sign In"}
               </Button>
-
-              {loginMethod === "email" && (
-                <div className="text-center">
-                  <Link
-                    href="/forgot-password"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-              )}
             </form>
           </CardContent>
         </Card>

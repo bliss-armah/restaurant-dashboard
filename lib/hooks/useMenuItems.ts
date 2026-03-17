@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import {
+  getMenuItems,
+  getCategories,
+  createMenuItem as apiCreate,
+  updateMenuItem as apiUpdate,
+  toggleMenuItemAvailable as apiToggle,
+  deleteMenuItem as apiDelete,
+} from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import type { MenuItem, MenuItemFormData, Category } from "@/lib/types";
 
@@ -11,11 +18,9 @@ export function useMenuItems(restaurantIdOverride?: string) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Super admins pass an explicit restaurantIdOverride.
-  // Restaurant admins use their own restaurantId from auth.
-  const restaurantId = restaurantIdOverride ?? user?.restaurantId;
+  const restaurantId = restaurantIdOverride ?? user?.restaurantId ?? undefined;
 
-  const loadData = useCallback(async () => {
+  const load = useCallback(async () => {
     if (!restaurantId) {
       setMenuItems([]);
       setCategories([]);
@@ -23,25 +28,14 @@ export function useMenuItems(restaurantIdOverride?: string) {
       return;
     }
     try {
-      const [itemsRes, categoriesRes] = await Promise.all([
-        supabase
-          .from("menu_items")
-          .select("*, category:category_id(id, name, restaurant_id)")
-          .eq("category.restaurant_id", restaurantId)
-          .not("category", "is", null)
-          .order("sort_order"),
-        supabase
-          .from("menu_categories")
-          .select("*")
-          .eq("restaurant_id", restaurantId)
-          .order("sort_order"),
+      const [itemsRes, catsRes] = await Promise.all([
+        getMenuItems(restaurantId),
+        getCategories(restaurantId),
       ]);
-      if (itemsRes.error) throw itemsRes.error;
-      if (categoriesRes.error) throw categoriesRes.error;
       setMenuItems(itemsRes.data || []);
-      setCategories(categoriesRes.data || []);
+      setCategories(catsRes.data || []);
     } catch (err: any) {
-      console.error("useMenuItems: failed to load", err);
+      console.error("useMenuItems: failed to load", err.message);
     } finally {
       setLoading(false);
     }
@@ -49,77 +43,45 @@ export function useMenuItems(restaurantIdOverride?: string) {
 
   useEffect(() => {
     setLoading(true);
-    loadData();
-    const sub = supabase
-      .channel(`menu-items-hook-${restaurantId ?? "none"}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "menu_items" },
-        loadData,
-      )
-      .subscribe();
+    load();
 
     const handleVisibility = () => {
-      if (document.visibilityState === "visible") loadData();
+      if (document.visibilityState === "visible") load();
     };
     document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      sub.unsubscribe();
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
-  }, [loadData, restaurantId]);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [load]);
 
   const createMenuItem = useCallback(
     async (data: MenuItemFormData) => {
-      const { error } = await supabase.from("menu_items").insert({
-        name: data.name,
-        description: data.description || null,
-        price: parseFloat(data.price),
-        category_id: data.category_id,
-        image_url: data.image_url || null,
-        sort_order: data.sort_order,
-        updated_at: new Date().toISOString(),
-      });
-      if (error) throw error;
-      await loadData();
+      await apiCreate(data, restaurantId);
+      await load();
     },
-    [loadData],
+    [load, restaurantId],
   );
 
   const updateMenuItem = useCallback(
     async (id: string, data: MenuItemFormData) => {
-      const { error } = await supabase
-        .from("menu_items")
-        .update({
-          name: data.name,
-          description: data.description || null,
-          price: parseFloat(data.price),
-          category_id: data.category_id,
-          image_url: data.image_url || null,
-          sort_order: data.sort_order,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id);
-      if (error) throw error;
-      await loadData();
+      await apiUpdate(id, data, restaurantId);
+      await load();
     },
-    [loadData],
+    [load, restaurantId],
   );
 
   const toggleItemAvailable = useCallback(
     async (item: MenuItem) => {
-      const { error } = await supabase
-        .from("menu_items")
-        .update({
-          is_available: !item.is_available,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", item.id);
-      if (error) console.error("useMenuItems: toggle failed", error);
-      await loadData();
+      await apiToggle(item.id, restaurantId);
+      await load();
     },
-    [loadData],
+    [load, restaurantId],
+  );
+
+  const deleteMenuItem = useCallback(
+    async (id: string) => {
+      await apiDelete(id, restaurantId);
+      await load();
+    },
+    [load, restaurantId],
   );
 
   return {
@@ -130,5 +92,6 @@ export function useMenuItems(restaurantIdOverride?: string) {
     createMenuItem,
     updateMenuItem,
     toggleItemAvailable,
+    deleteMenuItem,
   };
 }

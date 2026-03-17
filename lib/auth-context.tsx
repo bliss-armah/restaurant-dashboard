@@ -8,31 +8,20 @@ import {
   useCallback,
   ReactNode,
 } from "react";
-import { supabase } from "./supabase";
 import { useRouter } from "next/navigation";
+import { getMe, clearToken, getToken, type AuthUser } from "./api";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-type UserRole = "SUPER_ADMIN" | "RESTAURANT_ADMIN";
-
-interface AuthUser {
-  id: string;
-  email?: string;
-  phone?: string;
-  role: UserRole;
-  restaurantId?: string;
-  name?: string;
-}
-
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
-  signingOut: boolean;
   isSuperAdmin: boolean;
   isRestaurantAdmin: boolean;
   signOut: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,32 +31,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signingOut: false,
   isSuperAdmin: false,
   isRestaurantAdmin: false,
   signOut: () => {},
+  refreshUser: async () => {},
 });
-
-
-async function fetchUserRole(
-  userId: string,
-): Promise<{ role: UserRole; restaurantId?: string } | null> {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role, restaurant_id")
-    .eq("user_id", userId)
-    .single();
-
-  if (error || !data) {
-    console.error("[auth-context] failed to fetch user role:", error?.message);
-    return null;
-  }
-
-  return {
-    role: data.role as UserRole,
-    restaurantId: data.restaurant_id ?? undefined,
-  };
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Provider
@@ -76,87 +44,47 @@ async function fetchUserRole(
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [signingOut, setSigningOut] = useState(false);
   const router = useRouter();
 
-  /**
-   * Resolves a full AuthUser from a Supabase session.
-   * Fetches role from DB — never from JWT metadata.
-   */
-  const resolveUser = useCallback(
-    async (sessionUser: {
-      id: string;
-      email?: string;
-      phone?: string;
-      user_metadata?: Record<string, any>;
-    }) => {
-      const roleData = await fetchUserRole(sessionUser.id);
+  const refreshUser = useCallback(async () => {
+    const token = getToken();
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
 
-      console.log("roleData", roleData);
-
-      setUser({
-        id: sessionUser.id,
-        email: sessionUser.email,
-        phone: sessionUser.phone,
-        role: roleData?.role ?? "RESTAURANT_ADMIN",
-        restaurantId: roleData?.restaurantId,
-        name: sessionUser.user_metadata?.name,
-      });
-    },
-    [],
-  );
+    try {
+      const res = await getMe();
+      setUser(res.data);
+    } catch {
+      // Token is invalid or expired — clear it
+      clearToken();
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // ── Initial session load ─────────────────────────────────────────────────
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        await resolveUser(session.user);
-      }
-      setLoading(false);
-    });
+    refreshUser();
+  }, [refreshUser]);
 
-    // ── Auth state changes (login, logout, token refresh) ────────────────────
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (_event === "SIGNED_OUT") {
-        setUser(null);
-        setSigningOut(false);
-        router.push("/login");
-      } else if (session?.user) {
-        await resolveUser(session.user);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [resolveUser]);
-
-  const signOut = () => {
-    if (signingOut) return;
-    setSigningOut(true);
-    // Clear all local storage so stale session data can't persist
-    localStorage.clear();
-    // Fire-and-forget — don't await so a stale/hanging network request
-    // doesn't block the redirect after idle tabs.
-    supabase.auth.signOut().catch((err) =>
-      console.error("[auth-context] signOut error:", err),
-    );
+  const signOut = useCallback(() => {
+    clearToken();
     setUser(null);
-    setSigningOut(false);
     router.push("/login");
-  };
+  }, [router]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
-        signingOut,
         isSuperAdmin: user?.role === "SUPER_ADMIN",
         isRestaurantAdmin: user?.role === "RESTAURANT_ADMIN",
         signOut,
+        refreshUser,
       }}
     >
       {children}

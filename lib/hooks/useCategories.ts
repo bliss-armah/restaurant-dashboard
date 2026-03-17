@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import {
+  getCategories,
+  createCategory as apiCreate,
+  updateCategory as apiUpdate,
+  toggleCategoryActive as apiToggle,
+  deleteCategory as apiDelete,
+} from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import type { Category, CategoryFormData } from "@/lib/types";
 
@@ -10,27 +16,19 @@ export function useCategories(restaurantIdOverride?: string) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Super admins pass an explicit restaurantIdOverride.
-  // Restaurant admins use their own restaurantId from auth.
-  const restaurantId = restaurantIdOverride ?? user?.restaurantId;
+  const restaurantId = restaurantIdOverride ?? user?.restaurantId ?? undefined;
 
-  const loadCategories = useCallback(async () => {
-    // If no restaurant is selected yet, clear the list and stop loading.
+  const load = useCallback(async () => {
     if (!restaurantId) {
       setCategories([]);
       setLoading(false);
       return;
     }
     try {
-      const { data, error } = await supabase
-        .from("menu_categories")
-        .select("*")
-        .eq("restaurant_id", restaurantId)
-        .order("sort_order", { ascending: true });
-      if (error) throw error;
-      setCategories(data || []);
+      const res = await getCategories(restaurantId);
+      setCategories(res.data || []);
     } catch (err: any) {
-      console.error("useCategories: failed to load", err);
+      console.error("useCategories: failed to load", err.message);
     } finally {
       setLoading(false);
     }
@@ -38,67 +36,46 @@ export function useCategories(restaurantIdOverride?: string) {
 
   useEffect(() => {
     setLoading(true);
-    loadCategories();
-    const sub = supabase
-      .channel(`categories-hook-${restaurantId ?? "none"}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "menu_categories" },
-        loadCategories,
-      )
-      .subscribe();
+    load();
 
     const handleVisibility = () => {
-      if (document.visibilityState === "visible") loadCategories();
+      if (document.visibilityState === "visible") load();
     };
     document.addEventListener("visibilitychange", handleVisibility);
-
-    return () => {
-      sub.unsubscribe();
-      document.removeEventListener("visibilitychange", handleVisibility);
-    };
-  }, [loadCategories, restaurantId]);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [load]);
 
   const createCategory = useCallback(
     async (data: CategoryFormData) => {
-      const rid = restaurantId;
-      if (!rid) throw new Error("No restaurant selected.");
-      const { error } = await supabase.from("menu_categories").insert({
-        ...data,
-        restaurant_id: rid,
-        updated_at: new Date().toISOString(),
-      });
-      if (error) throw error;
-      await loadCategories();
+      if (!restaurantId) throw new Error("No restaurant selected");
+      await apiCreate(data, restaurantId);
+      await load();
     },
-    [loadCategories, restaurantId],
+    [load, restaurantId],
   );
 
   const updateCategory = useCallback(
     async (id: string, data: CategoryFormData) => {
-      const { error } = await supabase
-        .from("menu_categories")
-        .update({ ...data, updated_at: new Date().toISOString() })
-        .eq("id", id);
-      if (error) throw error;
-      await loadCategories();
+      await apiUpdate(id, data, restaurantId);
+      await load();
     },
-    [loadCategories],
+    [load, restaurantId],
   );
 
   const toggleCategoryActive = useCallback(
     async (category: Category) => {
-      const { error } = await supabase
-        .from("menu_categories")
-        .update({
-          is_active: !category.is_active,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", category.id);
-      if (error) console.error("useCategories: toggle failed", error);
-      await loadCategories();
+      await apiToggle(category.id, restaurantId);
+      await load();
     },
-    [loadCategories],
+    [load, restaurantId],
+  );
+
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      await apiDelete(id, restaurantId);
+      await load();
+    },
+    [load, restaurantId],
   );
 
   return {
@@ -108,5 +85,6 @@ export function useCategories(restaurantIdOverride?: string) {
     createCategory,
     updateCategory,
     toggleCategoryActive,
+    deleteCategory,
   };
 }

@@ -18,12 +18,14 @@ interface RestaurantTableProps {
   restaurants: Restaurant[];
   onEdit: (restaurant: Restaurant) => void;
   onAdd: () => void;
+  onToggleOpen?: (restaurant: Restaurant, isOpen: boolean) => void;
 }
 
 export function RestaurantTable({
   restaurants,
   onEdit,
   onAdd,
+  onToggleOpen,
 }: RestaurantTableProps) {
   if (restaurants.length === 0) {
     return (
@@ -49,6 +51,7 @@ export function RestaurantTable({
               <TableHead>Restaurant</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Orders</TableHead>
               <TableHead>Subscription</TableHead>
               <TableHead>Created</TableHead>
               <TableHead>Actions</TableHead>
@@ -77,18 +80,26 @@ export function RestaurantTable({
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={restaurant.is_active ? "default" : "secondary"}
+                    variant={restaurant.isActive ? "default" : "secondary"}
                   >
-                    {restaurant.is_active ? "Active" : "Inactive"}
+                    {restaurant.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={restaurant.isOpen ? "default" : "destructive"}
+                    className={restaurant.isOpen ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
+                  >
+                    {restaurant.isOpen ? "Open" : "Closed"}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">
-                    {restaurant.subscription_status}
+                    {restaurant.subscriptionStatus}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {new Date(restaurant.created_at).toLocaleDateString()}
+                  {new Date(restaurant.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
@@ -100,6 +111,17 @@ export function RestaurantTable({
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
+                    {onToggleOpen && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onToggleOpen(restaurant, !restaurant.isOpen)}
+                        className={restaurant.isOpen ? "text-red-600 hover:text-red-700 hover:bg-red-50 text-xs" : "text-green-600 hover:text-green-700 hover:bg-green-50 text-xs"}
+                        title={restaurant.isOpen ? "Close restaurant" : "Open restaurant"}
+                      >
+                        {restaurant.isOpen ? "Close" : "Open"}
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"

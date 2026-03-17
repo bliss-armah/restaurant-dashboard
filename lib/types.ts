@@ -1,8 +1,6 @@
 // ============================================
-// SHARED TYPES
+// SHARED TYPES — aligned with backend camelCase (Prisma native)
 // ============================================
-
-// ---- Admin types ----
 
 export interface Restaurant {
   id: string;
@@ -10,13 +8,19 @@ export interface Restaurant {
   description: string | null;
   phone: string;
   email: string | null;
-  momo_number: string;
-  momo_name: string;
-  is_active: boolean;
-  subscription_status: string;
-  trial_ends_at: string | null;
-  created_at: string;
-  updated_at: string;
+  momoNumber: string;
+  momoName: string;
+  whatsappNumber?: string | null;
+  whatsappPhoneNumberId?: string | null;
+  isActive: boolean;
+  isOpen: boolean;
+  openingTime: string | null;
+  closingTime: string | null;
+  timezone: string;
+  subscriptionStatus: string;
+  trialEndsAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface User {
@@ -25,10 +29,10 @@ export interface User {
   phone: string | null;
   name: string;
   role: "SUPER_ADMIN" | "RESTAURANT_ADMIN";
-  restaurant_id: string | null;
-  is_active: boolean;
-  created_at: string;
-  restaurant?: { id: string; name: string };
+  restaurantId: string | null;
+  isActive: boolean;
+  createdAt: string;
+  restaurant?: { id: string; name: string } | null;
 }
 
 export interface Activity {
@@ -63,16 +67,16 @@ export interface Category {
   id: string;
   name: string;
   description: string | null;
-  sort_order: number;
-  is_active: boolean;
-  restaurant_id: string;
-  created_at: string;
+  sortOrder: number;
+  isActive: boolean;
+  restaurantId: string;
+  createdAt: string;
 }
 
 export interface CategoryFormData {
   name: string;
   description?: string;
-  sort_order?: number;
+  sortOrder?: number;
 }
 
 // ---- Menu Item types ----
@@ -82,41 +86,41 @@ export interface MenuItem {
   name: string;
   description: string | null;
   price: number;
-  category_id: string;
-  image_url: string | null;
-  is_available: boolean;
-  sort_order: number;
-  category?: { id: string; name: string };
+  categoryId: string;
+  imageUrl: string | null;
+  isAvailable: boolean;
+  sortOrder: number;
+  category?: { id: string; name: string } | null;
 }
 
 export interface MenuItemFormData {
   name: string;
   description: string;
   price: string;
-  category_id: string;
-  image_url: string;
-  sort_order: number;
+  categoryId: string;
+  imageUrl: string;
+  sortOrder: number;
 }
 
 // ---- Order types ----
 
 export interface OrderItem {
   id: string;
-  item_name: string;
-  item_price: number;
+  itemName: string;
+  itemPrice: number;
   quantity: number;
   subtotal: number;
 }
 
 export interface Order {
   id: string;
-  order_number: string;
-  total_amount: number;
+  orderNumber: string;
+  totalAmount: number;
   status: string;
-  payment_status: string;
-  delivery_address: string | null;
-  customer_notes: string | null;
-  created_at: string;
+  paymentStatus: string;
+  deliveryAddress: string | null;
+  customerNotes: string | null;
+  createdAt: string;
   customer: { name: string | null; phone: string };
   items: OrderItem[];
 }

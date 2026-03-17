@@ -89,10 +89,10 @@ export function OrderDetailModal({
   );
 
   return (
-    <Modal title={order.order_number} onClose={onClose}>
+    <Modal title={order.orderNumber} onClose={onClose}>
       <div className="space-y-6">
         <p className="text-sm text-muted-foreground -mt-2">
-          {formatDate(order.created_at)}
+          {formatDate(order.createdAt)}
         </p>
 
         {/* Customer */}
@@ -101,14 +101,14 @@ export function OrderDetailModal({
           <p className="text-sm text-muted-foreground">
             {order.customer.name || "Unknown"} • {order.customer.phone}
           </p>
-          {order.delivery_address && (
+          {order.deliveryAddress && (
             <p className="text-xs text-muted-foreground mt-1">
-              📍 {order.delivery_address}
+              📍 {order.deliveryAddress}
             </p>
           )}
-          {order.customer_notes && (
+          {order.customerNotes && (
             <p className="text-xs text-muted-foreground mt-1">
-              📝 {order.customer_notes}
+              📝 {order.customerNotes}
             </p>
           )}
         </div>
@@ -123,9 +123,9 @@ export function OrderDetailModal({
                 className="flex items-center justify-between py-2 border-b last:border-0"
               >
                 <div>
-                  <p className="font-medium text-sm">{item.item_name}</p>
+                  <p className="font-medium text-sm">{item.itemName}</p>
                   <p className="text-xs text-muted-foreground">
-                    {item.quantity}x @ {formatPrice(item.item_price)}
+                    {item.quantity}x @ {formatPrice(item.itemPrice)}
                   </p>
                 </div>
                 <p className="font-semibold text-sm">
@@ -141,7 +141,7 @@ export function OrderDetailModal({
         {/* Total */}
         <div className="flex items-center justify-between text-lg font-bold">
           <span>Total</span>
-          <span>{formatPrice(order.total_amount)}</span>
+          <span>{formatPrice(order.totalAmount)}</span>
         </div>
 
         {/* Error feedback */}
@@ -152,7 +152,7 @@ export function OrderDetailModal({
         )}
 
         {/* Payment pending verification */}
-        {order.payment_status === "PENDING_VERIFICATION" &&
+        {order.paymentStatus === "PENDING_VERIFICATION" &&
           order.status === "PENDING" && (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm font-semibold text-yellow-800 mb-1">
@@ -197,7 +197,7 @@ export function OrderDetailModal({
         {/* General status actions */}
         {availableActions.length > 0 &&
           !(
-            order.payment_status === "PENDING_VERIFICATION" &&
+            order.paymentStatus === "PENDING_VERIFICATION" &&
             order.status === "PENDING"
           ) && (
             <div>

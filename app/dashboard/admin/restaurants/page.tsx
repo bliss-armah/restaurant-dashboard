@@ -14,7 +14,7 @@ import { type Restaurant } from "@/lib/types";
 
 export default function SuperAdminRestaurantsPage() {
   const { isReady, loading: authLoading } = useAdminGuard();
-  const { restaurants, loading, createRestaurant, updateRestaurant } =
+  const { restaurants, loading, createRestaurant, updateRestaurant, toggleOpenStatus } =
     useRestaurants(isReady);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(
     null,
@@ -25,7 +25,7 @@ export default function SuperAdminRestaurantsPage() {
   if (!isReady) return null;
 
   const thisMonth = restaurants.filter((r) => {
-    const d = new Date(r.created_at);
+    const d = new Date(r.createdAt);
     const now = new Date();
     return (
       d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
@@ -78,7 +78,7 @@ export default function SuperAdminRestaurantsPage() {
         <StatCard
           icon={Users}
           label="Active"
-          value={restaurants.filter((r) => r.is_active).length}
+          value={restaurants.filter((r) => r.isActive).length}
         />
         <StatCard icon={TrendingUp} label="This Month" value={thisMonth} />
       </div>
@@ -87,6 +87,7 @@ export default function SuperAdminRestaurantsPage() {
         restaurants={restaurants}
         onEdit={handleEdit}
         onAdd={() => setShowModal(true)}
+        onToggleOpen={(restaurant, isOpen) => toggleOpenStatus(restaurant.id, isOpen)}
       />
 
       {showModal && (

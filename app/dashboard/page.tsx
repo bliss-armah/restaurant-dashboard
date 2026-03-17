@@ -30,7 +30,7 @@ export default function DashboardPage() {
     loading: restaurantLoading,
     recentOrders,
   } = useRestaurantDashboardStats(
-    isRestaurantAdmin ? user?.restaurantId : undefined,
+    isRestaurantAdmin ? (user?.restaurantId ?? undefined) : undefined,
   );
 
   const loading = isSuperAdmin ? adminLoading : restaurantLoading;
@@ -211,13 +211,13 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-foreground">
-                          #{order.order_number}
+                          #{order.orderNumber}
                           <span className="ml-2 text-muted-foreground font-medium">
                             · {order.customer?.name || order.customer?.phone}
                           </span>
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-                          {new Date(order.created_at).toLocaleString(
+                          {new Date(order.createdAt).toLocaleString(
                             undefined,
                             {
                               month: "short",
@@ -231,7 +231,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto mt-2 sm:mt-0 ml-12 sm:ml-0">
                       <p className="text-base font-bold text-foreground">
-                        GHS {order.total_amount.toFixed(2)}
+                        GHS {order.totalAmount.toFixed(2)}
                       </p>
                       <Badge
                         variant="secondary"

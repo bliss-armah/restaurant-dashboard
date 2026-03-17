@@ -51,7 +51,7 @@ export function EditRoleModal({
     defaultValues: {
       role:
         (user.role as "SUPER_ADMIN" | "RESTAURANT_ADMIN") ?? "RESTAURANT_ADMIN",
-      restaurantId: user.restaurant_id ?? "",
+      restaurantId: user.restaurantId ?? "",
     },
   });
 

@@ -45,7 +45,7 @@ export default function OrdersPage() {
 
   const filteredOrders = orders.filter((o) => {
     if (filter === "pending-payment")
-      return o.payment_status === "PENDING_VERIFICATION";
+      return o.paymentStatus === "PENDING_VERIFICATION";
     if (filter === "active")
       return ["PENDING", "CONFIRMED", "PREPARING"].includes(o.status);
     return true;
@@ -138,7 +138,7 @@ export default function OrdersPage() {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-3 mb-3">
                     <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
-                      {order.order_number}
+                      {order.orderNumber}
                     </h3>
                     <Badge
                       variant="outline"
@@ -148,9 +148,9 @@ export default function OrdersPage() {
                     </Badge>
                     <Badge
                       variant="outline"
-                      className={`font-semibold border ${PAYMENT_BADGE[order.payment_status]}`}
+                      className={`font-semibold border ${PAYMENT_BADGE[order.paymentStatus]}`}
                     >
-                      {order.payment_status.replace("_", " ")}
+                      {order.paymentStatus.replace("_", " ")}
                     </Badge>
                   </div>
                   <div className="flex flex-wrap text-sm text-muted-foreground gap-x-6 gap-y-2 font-medium">
@@ -170,13 +170,13 @@ export default function OrdersPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-primary/40"></span>
-                      {formatDate(order.created_at)}
+                      {formatDate(order.createdAt)}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-6 mt-2 lg:mt-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-border/50">
                   <p className="text-2xl font-extrabold text-foreground tracking-tight">
-                    {formatPrice(order.total_amount)}
+                    {formatPrice(order.totalAmount)}
                   </p>
                 </div>
               </CardContent>

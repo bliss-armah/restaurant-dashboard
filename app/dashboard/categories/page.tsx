@@ -140,15 +140,15 @@ export default function CategoriesPage() {
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-border/50">
                   <span className="text-xs font-semibold text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-md">
-                    Order: {category.sort_order}
+                    Order: {category.sortOrder}
                   </span>
                   <Button
-                    variant={category.is_active ? "default" : "secondary"}
+                    variant={category.isActive ? "default" : "secondary"}
                     size="sm"
-                    className={`rounded-full text-xs h-7 px-4 font-semibold shadow-none ${category.is_active ? "bg-green-500 hover:bg-green-600 text-white" : ""}`}
+                    className={`rounded-full text-xs h-7 px-4 font-semibold shadow-none ${category.isActive ? "bg-green-500 hover:bg-green-600 text-white" : ""}`}
                     onClick={() => toggleCategoryActive(category)}
                   >
-                    {category.is_active ? "Active" : "Inactive"}
+                    {category.isActive ? "Active" : "Inactive"}
                   </Button>
                 </div>
               </CardContent>
@@ -165,9 +165,9 @@ export default function CategoriesPage() {
               ? {
                   name: editingCategory.name,
                   description: editingCategory.description || "",
-                  sort_order: editingCategory.sort_order,
+                  sortOrder: editingCategory.sortOrder,
                 }
-              : { name: "", description: "", sort_order: categories.length }
+              : { name: "", description: "", sortOrder: categories.length }
           }
           onClose={closeModal}
           onSubmit={handleSubmit}
