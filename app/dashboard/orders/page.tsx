@@ -152,6 +152,9 @@ export default function OrdersPage() {
                     >
                       {order.paymentStatus.replace("_", " ")}
                     </Badge>
+                    <Badge variant="outline" className="font-semibold border">
+                      {order.fulfillmentType === "DELIVERY" ? "🚚 Delivery" : "🏪 Pickup"}
+                    </Badge>
                   </div>
                   <div className="flex flex-wrap text-sm text-muted-foreground gap-x-6 gap-y-2 font-medium">
                     <div className="flex items-center gap-1.5">

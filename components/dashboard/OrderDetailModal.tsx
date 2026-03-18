@@ -101,6 +101,11 @@ export function OrderDetailModal({
           <p className="text-sm text-muted-foreground">
             {order.customer.name || "Unknown"} • {order.customer.phone}
           </p>
+          <div className="mt-2">
+            <Badge variant="outline">
+              {order.fulfillmentType === "DELIVERY" ? "🚚 Delivery" : "🏪 Pickup"}
+            </Badge>
+          </div>
           {order.deliveryAddress && (
             <p className="text-xs text-muted-foreground mt-1">
               📍 {order.deliveryAddress}

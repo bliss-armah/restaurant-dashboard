@@ -118,6 +118,7 @@ export interface Order {
   totalAmount: number;
   status: string;
   paymentStatus: string;
+  fulfillmentType: "DELIVERY" | "PICKUP";
   deliveryAddress: string | null;
   customerNotes: string | null;
   createdAt: string;
