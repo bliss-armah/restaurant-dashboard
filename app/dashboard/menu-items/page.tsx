@@ -12,14 +12,7 @@ import { RestaurantSelector } from "@/components/ui/RestaurantSelector";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import type { MenuItem } from "@/lib/types";
 
 export default function MenuItemsPage() {
@@ -58,6 +51,76 @@ export default function MenuItemsPage() {
   };
 
   const canCreate = !isSuperAdmin || !!selectedRestaurantId;
+
+  const columns: ColumnDef<MenuItem>[] = [
+    {
+      header: "Item",
+      cell: (item) => (
+        <div>
+          <div className="font-semibold text-foreground">{item.name}</div>
+          {item.description && (
+            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+              {item.description}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Category",
+      cell: (item) => (
+        <Badge
+          variant="secondary"
+          className="font-medium bg-muted text-muted-foreground border-transparent"
+        >
+          {item.category?.name ?? "N/A"}
+        </Badge>
+      ),
+    },
+    {
+      header: "Price",
+      cell: (item) => (
+        <span className="font-bold tracking-tight">
+          {formatPrice(item.price)}
+        </span>
+      ),
+    },
+    {
+      header: "Status",
+      cell: (item) => (
+        <Button
+          variant={item.isAvailable ? "default" : "secondary"}
+          size="sm"
+          className={`rounded-full text-xs h-7 px-4 font-semibold shadow-none ${
+            item.isAvailable ? "bg-green-500 hover:bg-green-600 text-white" : ""
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleItemAvailable(item);
+          }}
+        >
+          {item.isAvailable ? "Available" : "Unavailable"}
+        </Button>
+      ),
+    },
+    {
+      header: "Actions",
+      align: "right",
+      cell: (item) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-foreground hover:bg-muted"
+          onClick={(e) => {
+            e.stopPropagation();
+            openEdit(item);
+          }}
+        >
+          <Edit2 className="w-4 h-4" />
+        </Button>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -119,79 +182,11 @@ export default function MenuItemsPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="overflow-hidden border-border/60 shadow-sm bg-card animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50 hover:bg-muted/50">
-                    <TableHead className="font-semibold px-6 h-12">
-                      Item
-                    </TableHead>
-                    <TableHead className="font-semibold px-6">
-                      Category
-                    </TableHead>
-                    <TableHead className="font-semibold px-6">Price</TableHead>
-                    <TableHead className="font-semibold px-6">Status</TableHead>
-                    <TableHead className="font-semibold px-6 text-right">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {menuItems.map((item) => (
-                    <TableRow
-                      key={item.id}
-                      className="hover:bg-muted/30 transition-colors group"
-                    >
-                      <TableCell className="px-6 py-4">
-                        <div className="font-bold text-foreground group-hover:text-primary transition-colors">
-                          {item.name}
-                        </div>
-                        {item.description && (
-                          <div className="text-sm text-muted-foreground mt-1 line-clamp-1">
-                            {item.description}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <Badge
-                          variant="secondary"
-                          className="font-medium bg-muted text-muted-foreground border-transparent"
-                        >
-                          {item.category?.name || "N/A"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="px-6 py-4 font-bold tracking-tight">
-                        {formatPrice(item.price)}
-                      </TableCell>
-                      <TableCell className="px-6 py-4">
-                        <Button
-                          variant={item.isAvailable ? "default" : "secondary"}
-                          size="sm"
-                          className={`rounded-full text-xs h-7 px-4 font-semibold shadow-none ${item.isAvailable ? "bg-green-500 hover:bg-green-600 text-white" : ""}`}
-                          onClick={() => toggleItemAvailable(item)}
-                        >
-                          {item.isAvailable ? "Available" : "Unavailable"}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="px-6 py-4 text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-muted-foreground hover:text-foreground hover:bg-muted"
-                          onClick={() => openEdit(item)}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <DataTable
+          columns={columns}
+          rows={menuItems}
+          keyExtractor={(item) => item.id}
+        />
       )}
 
       {showModal && (
