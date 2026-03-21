@@ -21,15 +21,15 @@ export function StatCard({
       <CardContent className="p-6">
         <div className="flex items-center gap-5">
           <div
-            className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${iconBgColor} group-hover:bg-primary group-hover:text-primary-foreground shadow-sm`}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${iconBgColor} group-hover:bg-primary group-hover:text-primary-foreground shadow-sm`}
           >
-            <Icon className="w-7 h-7" strokeWidth={2} />
+            <Icon className="w-5 h-5" strokeWidth={2} />
           </div>
           <div className="flex flex-col">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
               {label}
             </p>
-            <p className="text-3xl font-bold tracking-tight text-foreground">
+            <p className="text-2xl font-bold tracking-tight text-foreground">
               {value}
             </p>
             {subLabel && (
