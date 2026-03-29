@@ -204,6 +204,28 @@ export async function adminUpdateUserRole(userId: string, role: string, restaura
 }
 
 // ============================================
+// BILLING
+// ============================================
+
+export async function getBillingSubscription() {
+  return apiRequest<{
+    success: boolean;
+    data: { subscription: any; subscriptionStatus: string | null; trialEndsAt: string | null };
+  }>("/billing/subscription");
+}
+
+export async function initializeBillingSubscription(interval: "monthly" | "yearly") {
+  return apiRequest<{ success: boolean; data: { authorization_url: string; reference: string } }>(
+    "/billing/initialize",
+    { method: "POST", body: JSON.stringify({ interval }) },
+  );
+}
+
+export async function cancelBillingSubscription() {
+  return apiRequest<{ success: boolean; message: string }>("/billing/cancel", { method: "POST" });
+}
+
+// ============================================
 // SHARED TYPES
 // ============================================
 

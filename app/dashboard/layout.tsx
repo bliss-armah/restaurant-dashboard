@@ -15,14 +15,17 @@ import {
   Building2,
   Users,
   Shield,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { SubscriptionBanner } from "@/components/dashboard/SubscriptionBanner";
 
 const restaurantNavigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Categories", href: "/dashboard/categories", icon: FolderOpen },
   { name: "Menu Items", href: "/dashboard/menu-items", icon: UtensilsCrossed },
   { name: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
+  { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -212,6 +215,9 @@ export default function DashboardLayout({
             </div>
           </div>
         </header>
+
+        {/* Subscription warning banner (restaurant admins only) */}
+        {!isSuperAdmin && <SubscriptionBanner />}
 
         {/* Page Content */}
         <main className="p-8">{children}</main>

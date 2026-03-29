@@ -127,3 +127,29 @@ export interface Order {
 }
 
 export type OrderFilterKey = "all" | "pending-payment" | "active";
+
+// ---- Billing / Subscription types ----
+
+export interface Subscription {
+  id: string;
+  restaurantId: string;
+  paystackSubscriptionCode: string | null;
+  billingInterval: "monthly" | "yearly";
+  amount: number; // in pesewas
+  status: "active" | "inactive" | "cancelled" | "non-renewing";
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelledAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionResponse {
+  subscription: Subscription | null;
+}
+
+export interface InitializeSubscriptionResponse {
+  authorization_url: string;
+  reference: string;
+  access_code: string;
+}
