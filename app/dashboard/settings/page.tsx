@@ -13,7 +13,8 @@ import { getMyRestaurant, setRestaurantOpenStatus, updateRestaurant } from "@/li
 export default function SettingsPage() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState<boolean | null>(null);
-  const [restaurantName, setRestaurantName] = useState("");
+  const [restaurandData, setRestaurantData] = useState<any>(null);
+
   const [toggling, setToggling] = useState(false);
 
   const [openingTime, setOpeningTime] = useState("");
@@ -25,8 +26,8 @@ export default function SettingsPage() {
     if (!user?.restaurantId) return;
     getMyRestaurant()
       .then((res) => {
+        setRestaurantData(res.data);
         setIsOpen(res.data.isOpen);
-        setRestaurantName(res.data.name);
         setOpeningTime(res.data.openingTime ?? "");
         setClosingTime(res.data.closingTime ?? "");
       })
@@ -191,11 +192,11 @@ export default function SettingsPage() {
             <div className="space-y-5">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">Restaurant Name</label>
-                <Input type="text" placeholder="My Restaurant" defaultValue={restaurantName} className="bg-background" />
+                <Input type="text" placeholder="My Restaurant" defaultValue={restaurandData?.name} className="bg-background" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">Description</label>
-                <Textarea className="resize-none bg-background" rows={3} placeholder="Brief description..." />
+                <Textarea className="resize-none bg-background" rows={3} placeholder="Brief description..." defaultValue={restaurandData?.description} />
               </div>
               <Button className="w-full mt-2 font-semibold">Save Changes</Button>
             </div>
@@ -216,12 +217,12 @@ export default function SettingsPage() {
             <div className="space-y-5">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">WhatsApp Number</label>
-                <Input type="tel" placeholder="+233 24 123 4567" disabled className="bg-muted/50" />
+                <Input type="tel" placeholder="+233 24 123 4567" disabled defaultValue={restaurandData?.whatsappNumber} className="bg-muted/50" />
                 <p className="text-xs text-muted-foreground mt-1.5 font-medium">Contact support to change this number</p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">Business Account ID</label>
-                <Input type="text" placeholder="WhatsApp Business Account ID" disabled className="bg-muted/50" />
+                <Input type="text" placeholder="WhatsApp Business Account ID" disabled defaultValue={restaurandData?.whatsappPhoneNumberId} className="bg-muted/50" />
               </div>
             </div>
           </CardContent>
@@ -241,11 +242,11 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">MoMo Number</label>
-                <Input type="tel" placeholder="+233 24 123 4567" className="bg-background" />
+                <Input type="tel" placeholder="+233 24 123 4567" defaultValue={restaurandData?.momoNumber} className="bg-background" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground">Account Name</label>
-                <Input type="text" placeholder="Business Name" className="bg-background" />
+                <Input type="text" placeholder="Business Name" defaultValue={restaurandData?.momoName} className="bg-background" />
               </div>
               <div className="md:col-span-2 mt-2">
                 <Button className="w-full md:w-auto font-semibold">Update Payment Details</Button>
