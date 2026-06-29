@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
-import StatsSection from "@/components/landing/StatsSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import WhyChoppaSection from "@/components/landing/WhyChoppaSection";
@@ -28,7 +27,6 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
       <Navbar isLoggedIn={isLoggedIn} />
       <HeroSection isLoggedIn={isLoggedIn} />
-      <StatsSection />
       <HowItWorksSection />
       <FeaturesSection />
       <WhyChoppaSection />
