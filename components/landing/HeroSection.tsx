@@ -151,8 +151,6 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
                     <p className="text-xs text-gray-300 mt-1">
                       Total: <strong className="text-white">GHS 50</strong>
                       <br />
-                      Pay via MoMo to: 024 XXX XXXX
-                      <br />
                       <span className="text-gray-400">
                         Est. delivery: 30 to 40 mins
                       </span>

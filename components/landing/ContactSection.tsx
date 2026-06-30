@@ -306,7 +306,6 @@ function SuccessState() {
         </div>
         {[
           "Think about your menu categories (e.g. Rice Dishes, Grills, Drinks)",
-          "Have your MoMo number ready for payment setup",
           "Prepare one or two photos of your popular dishes (optional but great!)",
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-2.5 text-gray-400 text-sm">

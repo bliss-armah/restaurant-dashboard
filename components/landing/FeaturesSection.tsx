@@ -21,13 +21,6 @@ const FEATURES = [
     tag: "Menu",
   },
   {
-    icon: "📱",
-    title: "Mobile Money Ready",
-    desc: "Built for MoMo. MTN, Vodafone, AirtelTigo. Share your number and Choppa tracks payment confirmations.",
-    accent: "#F97316",
-    tag: "Payments",
-  },
-  {
     icon: "🚚",
     title: "Delivery & Pickup",
     desc: "Let customers choose delivery or pickup. Delivery addresses are collected automatically via the bot.",
@@ -79,8 +72,8 @@ export default function FeaturesSection() {
             Everything Your Kitchen Needs to Grow
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Designed specifically for local Ghanaian restaurants. From MoMo
-            payments to GHS pricing, Choppa speaks your language.
+            Designed specifically for local Ghanaian restaurants. From GHS
+            pricing to the way your customers chat, Choppa speaks your language.
           </p>
         </div>
 

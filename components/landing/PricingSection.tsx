@@ -10,7 +10,6 @@ const SHARED_FEATURES = [
   "Unlimited orders",
   "Unlimited menu categories",
   "Live order dashboard",
-  "MoMo payment support",
   "Delivery & pickup support",
   "Automatic customer notifications",
   "Revenue analytics",
