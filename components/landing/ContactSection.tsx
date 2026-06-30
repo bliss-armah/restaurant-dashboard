@@ -19,13 +19,13 @@ const CONTACT_INFO = [
     icon: "📍",
     label: "Location",
     value: "Accra, Ghana 🇬🇭",
-    sub: "Ghana-based team, Ghana-focused",
+    sub: "Ghana based team, Ghana focused",
   },
   {
     icon: "⏰",
     label: "Response Time",
     value: "Within 24 hours",
-    sub: "Mon – Sat, 8am – 6pm GMT",
+    sub: "Mon to Sat, 8am to 6pm GMT",
   },
 ];
 
@@ -76,7 +76,7 @@ export default function ContactSection() {
             We&apos;ll Set Everything Up For You
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed text-lg">
-            There&apos;s no self-signup. You tell us about your restaurant and
+            There&apos;s no self signup. You tell us about your restaurant and
             we personally onboard you, so you start strong, not confused.
           </p>
         </div>
@@ -307,7 +307,7 @@ function SuccessState() {
         {[
           "Think about your menu categories (e.g. Rice Dishes, Grills, Drinks)",
           "Have your MoMo number ready for payment setup",
-          "Prepare 1-2 photos of your popular dishes (optional but great!)",
+          "Prepare one or two photos of your popular dishes (optional but great!)",
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-2.5 text-gray-400 text-sm">
             <span className="text-[#25D366] mt-0.5 flex-shrink-0">✓</span>

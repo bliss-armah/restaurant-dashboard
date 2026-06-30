@@ -9,7 +9,7 @@ const SHARED_FEATURES = [
   "WhatsApp ordering bot (24/7)",
   "Unlimited orders",
   "Unlimited menu categories",
-  "Real-time order dashboard",
+  "Live order dashboard",
   "MoMo payment support",
   "Delivery & pickup support",
   "Automatic customer notifications",
@@ -56,7 +56,7 @@ export default function PricingSection() {
                 <span className="text-gray-500 text-sm">/ month</span>
               </div>
               <p className="text-gray-400 text-sm leading-relaxed mt-3">
-                Full access, no long-term commitment. Your first 30 days are
+                Full access, no long term commitment. Your first 30 days are
                 completely free, no charge until your trial ends.
               </p>
             </div>

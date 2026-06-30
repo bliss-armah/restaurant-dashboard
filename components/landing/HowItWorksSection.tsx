@@ -34,7 +34,7 @@ export default function HowItWorksSection() {
             How It Works
           </div>
           <h2 className="text-4xl md:text-5xl font-black mb-4">
-            Simple as 1-2-3
+            Simple as 1, 2, 3
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
             Your customers order via WhatsApp while you stay in the kitchen. You

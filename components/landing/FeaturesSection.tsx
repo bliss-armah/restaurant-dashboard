@@ -8,7 +8,7 @@ const FEATURES = [
   },
   {
     icon: "📊",
-    title: "Real-time Dashboard",
+    title: "Live Dashboard",
     desc: "Track every order, manage your menu, view daily revenue and analytics, from any device, anywhere.",
     accent: "#FFB800",
     tag: "Management",
@@ -43,7 +43,7 @@ const FEATURES = [
   },
   {
     icon: "🏪",
-    title: "Multi-restaurant Support",
+    title: "Multiple Locations",
     desc: "Managing more than one location? Choppa scales with you. Each restaurant gets its own dashboard.",
     accent: "#14B8A6",
     tag: "Scale",
@@ -51,14 +51,14 @@ const FEATURES = [
   {
     icon: "🔔",
     title: "Automatic Notifications",
-    desc: "Customers receive real-time WhatsApp updates when their order is confirmed, being prepared, or ready.",
+    desc: "Customers receive live WhatsApp updates when their order is confirmed, being prepared, or ready.",
     accent: "#EAB308",
     tag: "Engagement",
   },
   {
     icon: "🔒",
     title: "Secure & Reliable",
-    desc: "Enterprise-grade security with end-to-end encryption, HMAC webhook verification, and 99.9% uptime.",
+    desc: "Bank grade security with full encryption, HMAC webhook verification, and 99.9% uptime.",
     accent: "#6366F1",
     tag: "Security",
   },

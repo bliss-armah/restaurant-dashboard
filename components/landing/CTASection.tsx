@@ -37,7 +37,7 @@ export default function CTASection({ onContactClick }: CTASectionProps) {
               </button>
             </div>
             <p className="text-gray-600 text-sm mt-6">
-              No credit card required · 30-day free trial · Cancel anytime
+              No credit card required · 30 day free trial · Cancel anytime
             </p>
           </div>
         </div>

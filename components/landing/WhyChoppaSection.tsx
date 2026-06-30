@@ -7,7 +7,7 @@ const CHECKLIST = [
   "Designed around Ghanaian food culture and ordering habits",
   "Zero app download needed, customers order from the WhatsApp they have",
   "Works on basic Android phones across all regions of Ghana",
-  "Bilingual-friendly, compatible with English and Ghanaian expressions",
+  "Bilingual friendly, compatible with English and Ghanaian expressions",
 ];
 
 const METRICS = [
@@ -98,7 +98,7 @@ export default function WhyChoppaSection() {
             <div className="col-span-2 bg-gradient-to-br from-[#25D366]/10 to-[#FFB800]/10 border border-white/10 rounded-2xl p-6 text-center">
               <div className="text-5xl mb-3">🇬🇭</div>
               <div className="text-white font-bold text-lg mb-1">
-                Ghana-First Platform
+                Ghana First Platform
               </div>
               <div className="text-gray-400 text-sm">
                 Proudly built for the Ghanaian restaurant industry
