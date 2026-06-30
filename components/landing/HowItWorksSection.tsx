@@ -3,7 +3,7 @@ const STEPS = [
     step: "01",
     icon: "💬",
     title: "Customer Texts In",
-    desc: "A customer WhatsApps your restaurant number to start an order — no app download, no registration.",
+    desc: "A customer WhatsApps your restaurant number to start an order. No app download, no registration.",
   },
   {
     step: "02",
@@ -21,7 +21,7 @@ const STEPS = [
     step: "04",
     icon: "🚀",
     title: "Cook & Deliver",
-    desc: "Prepare the order, update the status — your customer gets automatic WhatsApp notifications.",
+    desc: "Prepare the order and update the status. Your customer gets automatic WhatsApp notifications.",
   },
 ];
 
@@ -34,11 +34,11 @@ export default function HowItWorksSection() {
             How It Works
           </div>
           <h2 className="text-4xl md:text-5xl font-black mb-4">
-            Simple as 1-2-3
+            Simple as 1, 2, 3
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Your customers order via WhatsApp. You manage everything from one
-            clean dashboard. No tech skills needed.
+            Your customers order via WhatsApp while you stay in the kitchen. You
+            manage everything from one clean dashboard. No tech skills needed.
           </p>
         </div>
 

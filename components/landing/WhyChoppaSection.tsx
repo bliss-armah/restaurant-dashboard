@@ -1,13 +1,13 @@
 "use client";
 
 const CHECKLIST = [
-  "Works with any WhatsApp number — no special hardware required",
+  "Works with any WhatsApp number, no special hardware required",
   "Fully supports Mobile Money (MTN MoMo, Vodafone Cash, AirtelTigo)",
   "Prices displayed in Ghana Cedis (GHS) natively",
   "Designed around Ghanaian food culture and ordering habits",
-  "Zero app download needed — customers order from the WhatsApp they have",
+  "Zero app download needed, customers order from the WhatsApp they have",
   "Works on basic Android phones across all regions of Ghana",
-  "Bilingual-friendly — compatible with English and Ghanaian expressions",
+  "Bilingual friendly, compatible with English and Ghanaian expressions",
 ];
 
 const METRICS = [
@@ -55,7 +55,7 @@ export default function WhyChoppaSection() {
             </h2>
             <p className="text-gray-400 mb-8 leading-relaxed text-lg">
               Most restaurant software is built for Western markets. Choppa is
-              built for us — supporting MoMo payments, Ghana Cedis, and the way
+              built for us, supporting MoMo payments, Ghana Cedis, and the way
               Ghanaians actually communicate.
             </p>
             <ul className="space-y-3">
@@ -98,7 +98,7 @@ export default function WhyChoppaSection() {
             <div className="col-span-2 bg-gradient-to-br from-[#25D366]/10 to-[#FFB800]/10 border border-white/10 rounded-2xl p-6 text-center">
               <div className="text-5xl mb-3">🇬🇭</div>
               <div className="text-white font-bold text-lg mb-1">
-                Ghana-First Platform
+                Ghana First Platform
               </div>
               <div className="text-gray-400 text-sm">
                 Proudly built for the Ghanaian restaurant industry

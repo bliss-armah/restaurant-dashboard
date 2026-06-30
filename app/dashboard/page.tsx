@@ -195,7 +195,7 @@ export default function DashboardPage() {
               <div className="text-center py-10 rounded-xl bg-muted/20 border border-dashed border-border mt-2">
                 <ShoppingBag className="w-12 h-12 mx-auto mb-3 text-muted-foreground/30" />
                 <p className="text-muted-foreground font-medium">
-                  No orders yet — orders will appear here in real time.
+                  No orders yet. Orders will appear here in real time.
                 </p>
               </div>
             ) : (
