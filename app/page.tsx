@@ -6,7 +6,8 @@ import HeroSection from "@/components/landing/HeroSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import WhyChoppaSection from "@/components/landing/WhyChoppaSection";
-import TestimonialsSection from "@/components/landing/TestimonialsSection";
+// Hidden for Meta website review — restore when ready to show testimonials.
+// import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import PricingSection from "@/components/landing/PricingSection";
 import ContactSection from "@/components/landing/ContactSection";
 import CTASection from "@/components/landing/CTASection";
@@ -30,7 +31,8 @@ export default function LandingPage() {
       <HowItWorksSection />
       <FeaturesSection />
       <WhyChoppaSection />
-      <TestimonialsSection />
+      {/* Hidden for Meta website review — restore when ready. */}
+      {/* <TestimonialsSection /> */}
       <PricingSection />
       <ContactSection />
       <CTASection onContactClick={() => scrollTo("contact")} />

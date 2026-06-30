@@ -18,7 +18,7 @@ const TESTIMONIALS = [
     restaurant: "Taste of Ghana, Tema",
     avatar: "AD",
     stars: 5,
-    text: "My customers love that they can order at midnight and still get a response immediately. Choppa never sleeps, even when I do! The MoMo integration is exactly what we needed.",
+    text: "My customers love that they can order at midnight and still get a response immediately. Choppa never sleeps, even when I do! It is exactly what we needed.",
   },
   {
     name: "Kofi Mensah",
