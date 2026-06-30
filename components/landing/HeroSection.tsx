@@ -21,12 +21,12 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-gray-300 mb-8">
             <span className="w-2 h-2 bg-[#25D366] rounded-full animate-pulse" />
-            Trusted by restaurants across Ghana
+            Trusted by local restaurants across Ghana
           </div>
 
           {/* Headline */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.05] mb-6">
-            Your Customers Are
+            Reach More Customers
             <br />
             <span
               style={{
@@ -36,14 +36,14 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
                 backgroundClip: "text",
               }}
             >
-              Already on WhatsApp
+              Right From Your Kitchen
             </span>
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Choppa transforms WhatsApp into a fully automated ordering system
-            for your restaurant. More orders, less hustle — zero app downloads
-            needed.
+            Choppa turns WhatsApp into an automated ordering system for your
+            local restaurant. Reach more customers and take more orders without
+            ever leaving the kitchen. No app downloads needed.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
@@ -59,7 +59,7 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
                 onClick={() => scrollTo("contact")}
                 className="bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 w-full sm:w-auto shadow-lg shadow-[#25D366]/20"
               >
-                Get Started Free — Akwaaba! 👋
+                Get Started Free, Akwaaba! 👋
               </button>
             )}
             <button
@@ -133,7 +133,7 @@ export default function HeroSection({ isLoggedIn }: HeroSectionProps) {
 
                 <div className="flex justify-start">
                   <div className="bg-[#1F2C34] text-gray-100 text-sm rounded-xl rounded-tl-sm px-4 py-2.5 max-w-[85%] shadow">
-                    <p className="font-medium">Jollof Rice — GHS 25</p>
+                    <p className="font-medium">Jollof Rice · GHS 25</p>
                     <p className="text-gray-400 text-xs mt-0.5">
                       How many portions would you like?
                     </p>

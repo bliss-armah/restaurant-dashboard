@@ -57,7 +57,7 @@ export default function PricingSection() {
               </div>
               <p className="text-gray-400 text-sm leading-relaxed mt-3">
                 Full access, no long-term commitment. Your first 30 days are
-                completely free — no charge until your trial ends.
+                completely free, no charge until your trial ends.
               </p>
             </div>
 
@@ -83,7 +83,7 @@ export default function PricingSection() {
               onClick={scrollToContact}
               className="w-full border border-white/15 hover:border-[#25D366]/50 hover:bg-[#25D366]/5 text-white py-3.5 rounded-xl font-bold transition-all"
             >
-              Start Free — No Card Needed
+              Start Free, No Card Needed
             </button>
           </div>
 
@@ -143,7 +143,7 @@ export default function PricingSection() {
               onClick={scrollToContact}
               className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-3.5 rounded-xl font-bold transition-all hover:scale-[1.02] shadow-lg shadow-[#25D366]/20"
             >
-              Get Started — Save GHS {YEARLY_SAVINGS}/yr
+              Get Started, Save GHS {YEARLY_SAVINGS}/yr
             </button>
           </div>
         </div>

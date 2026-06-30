@@ -33,7 +33,8 @@ export default function Footer({ onNavClick }: FooterProps) {
               <span className="text-white font-black text-lg">Choppa</span>
             </div>
             <p className="text-gray-500 text-sm leading-relaxed mb-4">
-              The smart WhatsApp ordering platform for Ghanaian restaurants.
+              The smart WhatsApp ordering platform that helps local Ghanaian
+              restaurants reach more customers from their kitchen.
             </p>
             <div className="text-gray-600 text-sm">Made with ❤️ in Ghana 🇬🇭</div>
           </div>

@@ -30,8 +30,8 @@ const CONTACT_INFO = [
 ];
 
 const PLANS = [
-  { value: "monthly", label: "Monthly — GHS 30/month (first 30 days free)" },
-  { value: "yearly", label: "Yearly — GHS 27/month · billed GHS 324/yr (save 10%)" },
+  { value: "monthly", label: "Monthly · GHS 30/month (first 30 days free)" },
+  { value: "yearly", label: "Yearly · GHS 27/month · billed GHS 324/yr (save 10%)" },
 ];
 
 const WHAT_NEXT = [
@@ -77,12 +77,12 @@ export default function ContactSection() {
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed text-lg">
             There&apos;s no self-signup. You tell us about your restaurant and
-            we personally onboard you — so you start strong, not confused.
+            we personally onboard you, so you start strong, not confused.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-16 items-start">
-          {/* Left — what happens next + contact info */}
+          {/* Left side: what happens next + contact info */}
           <div>
             {/* What happens next */}
             <div className="mb-12">
@@ -135,7 +135,7 @@ export default function ContactSection() {
             </div>
           </div>
 
-          {/* Right — onboarding request form */}
+          {/* Right side: onboarding request form */}
           <div className="bg-white/[0.03] border border-white/8 rounded-2xl p-8">
             {submitted ? (
               <SuccessState />

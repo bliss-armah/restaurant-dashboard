@@ -13,20 +13,21 @@ export default function CTASection({ onContactClick }: CTASectionProps) {
           <div className="relative">
             <div className="text-6xl mb-6">🇬🇭</div>
             <h2 className="text-4xl md:text-5xl font-black mb-4">
-              Ready to Transform
+              Ready to Reach More
               <br />
-              Your Restaurant?
+              Customers From Your Kitchen?
             </h2>
             <p className="text-gray-400 mb-10 text-lg max-w-xl mx-auto leading-relaxed">
-              Join hundreds of Ghanaian restaurants already using Choppa to take
-              more orders, earn more revenue, and serve customers better.
+              Join hundreds of local Ghanaian restaurants already using Choppa to
+              reach more customers, take more orders, and serve them better
+              without ever leaving the kitchen.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={onContactClick}
                 className="bg-[#25D366] hover:bg-[#128C7E] text-white px-10 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-lg shadow-[#25D366]/20"
               >
-                Get Started Free — Akwaaba! 🤝
+                Get Started Free, Akwaaba! 🤝
               </button>
               <button
                 onClick={onContactClick}

@@ -2,14 +2,14 @@ const FEATURES = [
   {
     icon: "📲",
     title: "WhatsApp Ordering Bot",
-    desc: "An intelligent conversational bot handles your orders automatically — 24 hours a day, 7 days a week. No human needed.",
+    desc: "An intelligent conversational bot handles your orders automatically, 24 hours a day, 7 days a week. No human needed.",
     accent: "#25D366",
     tag: "Core",
   },
   {
     icon: "📊",
     title: "Real-time Dashboard",
-    desc: "Track every order, manage your menu, view daily revenue and analytics — from any device, anywhere.",
+    desc: "Track every order, manage your menu, view daily revenue and analytics, from any device, anywhere.",
     accent: "#FFB800",
     tag: "Management",
   },
@@ -23,7 +23,7 @@ const FEATURES = [
   {
     icon: "📱",
     title: "Mobile Money Ready",
-    desc: "Built for MoMo. MTN, Vodafone, AirtelTigo — share your number and Choppa tracks payment confirmations.",
+    desc: "Built for MoMo. MTN, Vodafone, AirtelTigo. Share your number and Choppa tracks payment confirmations.",
     accent: "#F97316",
     tag: "Payments",
   },
@@ -44,7 +44,7 @@ const FEATURES = [
   {
     icon: "🏪",
     title: "Multi-restaurant Support",
-    desc: "Managing more than one location? Choppa scales with you — each restaurant gets its own dashboard.",
+    desc: "Managing more than one location? Choppa scales with you. Each restaurant gets its own dashboard.",
     accent: "#14B8A6",
     tag: "Scale",
   },
@@ -76,11 +76,11 @@ export default function FeaturesSection() {
             Platform Features
           </div>
           <h2 className="text-4xl md:text-5xl font-black mb-4">
-            Everything You Need to Grow
+            Everything Your Kitchen Needs to Grow
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Designed specifically for Ghanaian restaurants — from MoMo payments
-            to GHS pricing, Choppa speaks your language.
+            Designed specifically for local Ghanaian restaurants. From MoMo
+            payments to GHS pricing, Choppa speaks your language.
           </p>
         </div>
 
