@@ -24,7 +24,7 @@ function formatAmount(pesewas: number) {
 }
 
 function formatDate(iso: string | null) {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   return new Date(iso).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
@@ -175,7 +175,7 @@ export default function BillingPage() {
   const [returnMessage, setReturnMessage] = useState<string | null>(null);
 
   const handlePaystackReturn = useCallback(() => {
-    setReturnMessage("Payment received — refreshing your subscription status…");
+    setReturnMessage("Payment received. Refreshing your subscription status…");
     refetch().then(() => setReturnMessage(null));
   }, [refetch]);
 

@@ -73,7 +73,7 @@ export function EditRoleModal({
   };
 
   return (
-    <Modal title={`Edit Role — ${user.name}`} onClose={onClose}>
+    <Modal title={`Edit Role: ${user.name}`} onClose={onClose}>
       <form onSubmit={handleSubmit(onValid)} className="space-y-5">
         {errors.root && (
           <p className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-lg">

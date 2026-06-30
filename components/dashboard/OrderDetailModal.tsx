@@ -231,7 +231,7 @@ export function OrderDetailModal({
 
         {(order.status === "COMPLETED" || order.status === "CANCELLED") && (
           <p className="text-sm text-center text-muted-foreground">
-            This order is {order.status.toLowerCase()} — no further actions
+            This order is {order.status.toLowerCase()}. No further actions
             available.
           </p>
         )}
